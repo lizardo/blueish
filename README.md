@@ -54,9 +54,13 @@ Running tests
 1. Make sure BlueZ daemon is running. For troubleshooting, it is recommended to
    run bluetoothd with `-d` option.
 2. If necessary, load the `hci_vhci` kernel module with:
+
 	$ sudo modprobe hci_vhci
+
 3. Run script (root required due to VHCI and BlueZ D-Bus access restrictions):
+
 	$ sudo ./<script_name>
+
 4. Check BlueZ logs (it is recommended to run BlueZ under Valgrind to look for
    memory errors and crash backtraces)
 5. The script should terminate itself. If not, terminate it with CTRL+C, which
@@ -164,8 +168,8 @@ command and reply with a "Command Status" event:
 	      opcode: *opcode
 	      status: 0
 
-The `&opcode` and `\*opcode` annotations are just a YAML shortcut to avoid
-duplicating information. `\*opcode` will be replaced by `{ocf: INQUIRY, ogf:
+The `&opcode` and `*opcode` annotations are just a YAML shortcut to avoid
+duplicating information. `*opcode` will be replaced by `{ocf: INQUIRY, ogf:
 LINK_CTL}`.
 
 The key names and value types come from the packet parser implemented in
@@ -268,8 +272,6 @@ Contact
 
 For issues/questions, send an e-mail to <anderson.lizardo@openbossa.org>.
 
-References
-==========
 
 [YAML]:   http://www.yaml.org/      "Official YAML Web Site"
 [YAML11]: http://yaml.org/spec/1.1/ "YAML Version 1.1 Specification"

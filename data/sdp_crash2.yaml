@@ -1,0 +1,19 @@
+- packet:
+    data:
+      cid: 64
+      data: !!binary |
+        BgAAAA81AxkBAP//NQUKAAD//wA=
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: 64
+      data: !!binary |
+        BwAAAAL//w==
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+

@@ -1,0 +1,639 @@
+- packet_indicator: COMMAND
+  packet:
+    opcode: &opcode {ocf: INQUIRY, ogf: LINK_CTL}
+    params:
+      lap: [51, 139, 158]
+      length: 4
+      num_rsp: 0
+- packet_indicator: EVENT
+  packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: *opcode
+      status: 0
+- packet_indicator: EVENT
+  packet:
+    evt: INQUIRY_RESULT
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      clock_offset: 0
+      dev_class: [0, 0, 0]
+      num_rsp: 1
+      pscan_rep_mode: 0
+      reserved1: 0
+      reserved2: 0
+- packet_indicator: EVENT
+  packet:
+    evt: INQUIRY_COMPLETE
+    params: {status: 0}
+---
+- packet:
+    opcode: {ocf: SET_EVENT_MASK, ogf: HOST_CTL}
+    params:
+      mask: [255, 255, 251, 255, 7, 248, 191, 61]
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: SET_EVENT_MASK, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_LOCAL_VERSION, ogf: INFO_PARAM}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_LOCAL_VERSION, ogf: INFO_PARAM}
+      rparams: {hci_rev: 0, hci_ver: 6, lmp_subver: 0, lmp_ver: 6, manufacturer: 63,
+        status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_SET_EVENT_MASK, ogf: LE_CTL}
+    params:
+      mask: [31, 0, 0, 0, 0, 0, 0, 0]
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_SET_EVENT_MASK, ogf: LE_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: INQUIRY_CANCEL, ogf: LINK_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: INQUIRY_CANCEL, ogf: LINK_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_LOCAL_COMMANDS, ogf: INFO_PARAM}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_LOCAL_COMMANDS, ogf: INFO_PARAM}
+      rparams:
+        commands: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_READ_BUFFER_SIZE, ogf: LE_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_READ_BUFFER_SIZE, ogf: LE_CTL}
+      rparams: {max_pkt: 1, pkt_len: 192, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: RESET, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: RESET, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_LOCAL_FEATURES, ogf: INFO_PARAM}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_LOCAL_FEATURES, ogf: INFO_PARAM}
+      rparams:
+        features: [164, 8, 0, 192, 88, 30, 123, 131]
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_READ_LOCAL_SUPPORTED_FEATURES, ogf: LE_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_READ_LOCAL_SUPPORTED_FEATURES, ogf: LE_CTL}
+      rparams:
+        features: [0, 0, 0, 0, 0, 0, 0, 0]
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_LOCAL_EXT_FEATURES, ogf: INFO_PARAM}
+    params: {page_num: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_LOCAL_EXT_FEATURES, ogf: INFO_PARAM}
+      rparams:
+        features: [1, 0, 0, 0, 0, 0, 0, 0]
+        max_page_num: 1
+        page_num: 1
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: CREATE_CONN, ogf: LINK_CTL}
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      clock_offset: 32768
+      pkt_type: 24
+      pscan_rep_mode: 0
+      reserved: 0
+      role_switch: 1
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: CREATE_CONN, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: CONN_COMPLETE
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      encr_mode: 0
+      handle: 1
+      link_type: 1
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: CREATE_CONN, ogf: LINK_CTL}
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      clock_offset: 0
+      pkt_type: 24
+      pscan_rep_mode: 2
+      reserved: 0
+      role_switch: 1
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: CREATE_CONN, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: CONN_COMPLETE
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      encr_mode: 0
+      handle: 1
+      link_type: 1
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: SET_EVENT_FLT, ogf: HOST_CTL}
+    params: {cond_type: null, condition: null, flt_type: CLEAR_ALL}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: SET_EVENT_FLT, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_BUFFER_SIZE, ogf: INFO_PARAM}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_BUFFER_SIZE, ogf: INFO_PARAM}
+      rparams: {acl_max_pkt: 1, acl_mtu: 192, sco_max_pkt: 0, sco_mtu: 0, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
+    params: {handle: 1, reason: 19}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: DISCONN_COMPLETE
+    params: {handle: 1, reason: 22, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_READ_ADVERTISING_CHANNEL_TX_POWER, ogf: LE_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_READ_ADVERTISING_CHANNEL_TX_POWER, ogf: LE_CTL}
+      rparams: {level: 0, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_BD_ADDR, ogf: INFO_PARAM}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_BD_ADDR, ogf: INFO_PARAM}
+      rparams:
+        bdaddr: [175, 240, 175, 240, 175, 240]
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_SET_SCAN_PARAMETERS, ogf: LE_CTL}
+    params: {filter: 0, interval: 18, own_bdaddr_type: 0, type: 1, window: 18}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_SET_SCAN_PARAMETERS, ogf: LE_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+    params: {enable: 0, filter_dup: 0}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+    params: {enable: 1, filter_dup: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_STORED_LINK_KEY, ogf: HOST_CTL}
+    params:
+      bdaddr: [0, 0, 0, 0, 0, 0]
+      read_all: 1
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_STORED_LINK_KEY, ogf: HOST_CTL}
+      rparams: {max_keys: 0, num_keys: 0, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: WRITE_DEFAULT_LINK_POLICY, ogf: LINK_POLICY}
+    params: {policy: 5}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: WRITE_DEFAULT_LINK_POLICY, ogf: LINK_POLICY}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_READ_WHITE_LIST_SIZE, ogf: LE_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_READ_WHITE_LIST_SIZE, ogf: LE_CTL}
+      rparams: {size: 1, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: DELETE_STORED_LINK_KEY, ogf: HOST_CTL}
+    params:
+      bdaddr: [0, 0, 0, 0, 0, 0]
+      delete_all: 1
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: DELETE_STORED_LINK_KEY, ogf: HOST_CTL}
+      rparams: {num_keys: 0, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: WRITE_CONN_ACCEPT_TIMEOUT, ogf: HOST_CTL}
+    params: {timeout: 32000}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: WRITE_CONN_ACCEPT_TIMEOUT, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: WRITE_PAGE_TIMEOUT, ogf: HOST_CTL}
+    params: {timeout: 8192}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: WRITE_PAGE_TIMEOUT, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: REMOTE_NAME_REQ, ogf: LINK_CTL}
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      clock_offset: 0
+      pscan_rep_mode: 2
+      reserved: 0
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: REMOTE_NAME_REQ, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: REMOTE_NAME_REQ_COMPLETE
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      name: test1234
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_SCAN_ENABLE, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_SCAN_ENABLE, ogf: HOST_CTL}
+      rparams: {enable: 2, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: REMOTE_NAME_REQ_CANCEL, ogf: LINK_CTL}
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: REMOTE_NAME_REQ_CANCEL, ogf: LINK_CTL}
+      rparams:
+        bdaddr: [52, 18, 52, 18, 52, 18]
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: WRITE_SCAN_ENABLE, ogf: HOST_CTL}
+    params: {enable: 2}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: WRITE_SCAN_ENABLE, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_REMOTE_FEATURES, ogf: LINK_CTL}
+    params: {handle: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_REMOTE_FEATURES, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: READ_REMOTE_FEATURES_COMPLETE
+    params:
+      features: [164, 8, 0, 192, 88, 30, 123, 131]
+      handle: 1
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_REMOTE_EXT_FEATURES, ogf: LINK_CTL}
+    params: {handle: 1, page_num: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_REMOTE_EXT_FEATURES, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: READ_REMOTE_EXT_FEATURES_COMPLETE
+    params:
+      features: [0, 0, 0, 0, 0, 0, 0, 0]
+      handle: 1
+      max_page_num: 1
+      page_num: 1
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_READ_SUPPORTED_STATES, ogf: LE_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_READ_SUPPORTED_STATES, ogf: LE_CTL}
+      rparams:
+        states: [0, 0, 0, 0, 0, 0, 0, 0]
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_REMOTE_VERSION, ogf: LINK_CTL}
+    params: {handle: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_REMOTE_VERSION, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: READ_REMOTE_VERSION_COMPLETE
+    params: {handle: 1, lmp_subver: 0, lmp_ver: 6, manufacturer: 63, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_VOICE_SETTING, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_VOICE_SETTING, ogf: HOST_CTL}
+      rparams: {status: 0, voice_setting: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: WRITE_INQUIRY_MODE, ogf: HOST_CTL}
+    params: {mode: 2}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: WRITE_INQUIRY_MODE, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_SIMPLE_PAIRING_MODE, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_SIMPLE_PAIRING_MODE, ogf: HOST_CTL}
+      rparams: {mode: 0, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: WRITE_SIMPLE_PAIRING_MODE, ogf: HOST_CTL}
+    params: {mode: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: WRITE_SIMPLE_PAIRING_MODE, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_INQ_RESPONSE_TX_POWER_LEVEL, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_INQ_RESPONSE_TX_POWER_LEVEL, ogf: HOST_CTL}
+      rparams: {level: 0, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: WRITE_LE_HOST_SUPPORTED, ogf: HOST_CTL}
+    params: {le: 1, simul: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: WRITE_LE_HOST_SUPPORTED, ogf: HOST_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT

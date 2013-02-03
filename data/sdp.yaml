@@ -1,0 +1,156 @@
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: INFO_REQ
+        data: {type: FEAT_MASK}
+        ident: 1
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: INFO_RSP
+        data: {data: 128, result: 0, type: FEAT_MASK}
+        ident: 1
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: INFO_REQ
+        data: {type: FIXED_CHAN}
+        ident: 2
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: INFO_RSP
+        data:
+          data: [2, 0, 0, 0, 0, 0, 0, 0]
+          result: 0
+          type: FIXED_CHAN
+        ident: 2
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: CONN_REQ
+        data: {psm: SDP, scid: 64}
+        ident: 3
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: CONN_RSP
+        data: {dcid: 64, result: 0, scid: 64, status: 0}
+        ident: 3
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: CONF_REQ
+        data:
+          dcid: 64
+          flags: 0
+          l2cap_conf_opt: []
+        ident: 4
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: CONF_RSP
+        data:
+          flags: 0
+          l2cap_conf_opt:
+          - {data: 672, type: MTU}
+          result: 0
+          scid: 64
+        ident: 4
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: CONF_REQ
+        data:
+          dcid: 64
+          flags: 0
+          l2cap_conf_opt:
+          - {data: 672, type: MTU}
+        ident: 1
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+
+---
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: CONF_RSP
+        data:
+          flags: 0
+          l2cap_conf_opt:
+          - {data: 672, type: MTU}
+          result: 0
+          scid: 64
+        ident: 1
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: 64
+      data: !!binary |
+        BgABAA81AxkSAP//NQUKAAD//wA=
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data: {cid: 64, data: "\a\0\x01\0\x19\0\x166\0\x136\0\x10\t\0\0\n\0\x01\0\x01\t\
+        \0\x015\x03\x19\x12\0\0"}
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT

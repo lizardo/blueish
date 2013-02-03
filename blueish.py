@@ -17,16 +17,21 @@
 from __future__ import print_function
 import sys
 import yaml
-from construct import Container
+from construct import Container, ListContainer
 from bt_lib.hci.transport import uart
+from bt_lib.sdp import sdp
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
-        print("Usage: %s <testcase.py> <data1.yaml> [data2.yaml ...]" % sys.argv[0])
+        print("Usage: %s <testcase.py> <data1.yaml> [data2.yaml ...]" % sys.argv[0], file=sys.stderr)
         sys.exit(1)
 
     yaml.add_constructor('tag:yaml.org,2002:map',
             lambda l, n: Container(**l.construct_mapping(n)))
+    yaml.add_constructor('tag:yaml.org,2002:seq',
+            lambda l, n: ListContainer(l.construct_sequence(n)))
+    yaml.add_constructor('!sdp',
+            lambda l, n: sdp.build(Container(**l.construct_mapping(n))))
 
     print(open("common.py", "r").read())
     print("packets = {}")

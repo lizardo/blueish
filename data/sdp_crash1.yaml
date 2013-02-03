@@ -1,8 +1,20 @@
 - packet:
     data:
       cid: 64
-      data: !!binary |
-        BgAAAA81AxkBAP//NQUKAAD//wA=
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_REQ
+        tid: 0
+        params:
+          max_count: 65535
+          attr_list:
+            data:
+              - {data: 65535, type_size: UINT32}
+            type_size: SEQ8
+          pattern:
+            data:
+              - {data: L2CAP, type_size: UUID16}
+            type_size: SEQ8
+          cont: ""
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
 - packet:

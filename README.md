@@ -55,11 +55,11 @@ Running tests
    run bluetoothd with `-d` option.
 2. If necessary, load the `hci_vhci` kernel module with:
 
-	$ sudo modprobe hci_vhci
+		$ sudo modprobe hci_vhci
 
 3. Run script (root required due to VHCI and BlueZ D-Bus access restrictions):
 
-	$ sudo ./<script_name>
+		$ sudo ./<script_name>
 
 4. Check BlueZ logs (it is recommended to run BlueZ under Valgrind to look for
    memory errors and crash backtraces)

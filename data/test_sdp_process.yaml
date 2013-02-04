@@ -1,0 +1,147 @@
+# This data file will exercise all reachable non-error code paths in
+# sdp_process(). Note that we are abusing SDP continuation states to test as
+# much code as possible in a single SDP session.
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START_NO_FLUSH, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_REQ
+        tid: 0
+        params:
+          max_count: 65535
+          attr_list:
+            data:
+              - {data: 65535, type_size: UINT32}
+            type_size: SEQ8
+          pattern:
+            data:
+              - {data: L2CAP, type_size: UUID16}
+            type_size: SEQ8
+          cont: ""
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_RSP
+        tid: 0
+        params:
+          tsrc: 1
+          csrc: 0
+          rec_handle_list: []
+          cont: "A"
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+---
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START_NO_FLUSH, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_REQ
+        tid: 1
+        params:
+          max_count: 65535
+          attr_list:
+            data:
+              - {data: 65535, type_size: UINT32}
+            type_size: SEQ8
+          pattern:
+            data:
+              - {data: L2CAP, type_size: UUID16}
+            type_size: SEQ8
+          cont: "A"
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_RSP
+        tid: 1
+        params:
+          tsrc: 1
+          csrc: 0
+          rec_handle_list: []
+          cont: "B"
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+---
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START_NO_FLUSH, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_REQ
+        tid: 2
+        params:
+          max_count: 65535
+          attr_list:
+            data:
+              - {data: 65535, type_size: UINT32}
+            type_size: SEQ8
+          pattern:
+            data:
+              - {data: L2CAP, type_size: UUID16}
+            type_size: SEQ8
+          cont: "B"
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_RSP
+        tid: 2
+        params:
+          attr_lists:
+            data: 0xffff
+            type_size: UINT16
+          cont: "C"
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+---
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START_NO_FLUSH, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_REQ
+        tid: 3
+        params:
+          max_count: 65535
+          attr_list:
+            data:
+              - {data: 65535, type_size: UINT32}
+            type_size: SEQ8
+          pattern:
+            data:
+              - {data: L2CAP, type_size: UUID16}
+            type_size: SEQ8
+          cont: "C"
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: ERROR_RSP
+        tid: 3
+        params:
+          error_code: 0x0001
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT

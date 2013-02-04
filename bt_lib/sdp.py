@@ -72,6 +72,17 @@ sdp_pdu_hdr_t = Struct("sdp_pdu_hdr_t",
     UBInt16("plen"),
 )
 
+sdp_error_rsp = Struct("sdp_error_rsp",
+    UBInt16("error_code"),
+)
+
+sdp_svc_search_rsp = Struct("sdp_svc_search_rsp",
+    UBInt16("tsrc"),
+    UBInt16("csrc"),
+    Array(lambda ctx: ctx.csrc, UBInt32("rec_handle_list")),
+    PascalString("cont"),
+)
+
 sdp_svc_search_attr_req = Struct("sdp_svc_search_attr_req",
     SDP_DE("pattern"),
     UBInt16("max_count"),
@@ -91,6 +102,8 @@ sdp = DataStruct("sdp",
     Embed(sdp_pdu_hdr_t),
     Switch("params", lambda ctx: ctx.pdu_id,
         {
+            "ERROR_RSP": sdp_error_rsp,
+            "SVC_SEARCH_RSP": sdp_svc_search_rsp,
             "SVC_SEARCH_ATTR_REQ": sdp_svc_search_attr_req,
             "SVC_SEARCH_ATTR_RSP": sdp_svc_search_attr_rsp,
         }

@@ -39,6 +39,9 @@ if __name__ == "__main__":
         print("\npackets.update({")
         with open(data_file, "r") as data:
             for doc in yaml.load_all(data):
+                if doc is None:
+                    print("Ignoring empty document!", file=sys.stderr)
+                    continue
                 p = map(lambda c: uart.build(c).encode("hex").upper(), doc)
                 print("    '%s': %s," % (p[0], p[1:]))
         print("})")

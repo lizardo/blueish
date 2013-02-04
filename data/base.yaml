@@ -1,3 +1,4 @@
+# Minimum set of HCI commands needed for adapter setup and device discovery.
 - packet_indicator: COMMAND
   packet:
     opcode: &opcode {ocf: INQUIRY, ogf: LINK_CTL}

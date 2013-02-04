@@ -1,3 +1,6 @@
+# Generate test script with:
+# ./blueish.py testcases/device_connect.py data/base.yaml data/sdp.yaml \
+#     data/sdp_crash1.yaml > test.py
 - packet:
     data:
       cid: 64

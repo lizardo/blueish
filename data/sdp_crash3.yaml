@@ -1,6 +1,6 @@
-# This data file will exercise all reachable non-error code paths in
-# sdp_process(). Note that we are abusing SDP continuation states to test as
-# much code as possible in a single SDP session.
+# Generate test script with:
+# ./blueish.py testcases/device_connect.py data/base.yaml data/sdp.yaml \
+#     data/sdp_crash3.yaml > test.py
 - packet_indicator: ACLDATA
   packet:
     header: {flags: START_NO_FLUSH, handle: 1}

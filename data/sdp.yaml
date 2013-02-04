@@ -1,3 +1,6 @@
+# Basic set of packets for SDP connection establishment. Note that the first
+# SDP_SVC_SEARCH_ATTR_REQ sent by BlueZ on service discovery is intentionally
+# missing, so other data files can implement their own services.
 - packet:
     data:
       cid: SIGNALING

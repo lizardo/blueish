@@ -1,3 +1,5 @@
+# Basic set of HID packets required for creating HID Interrupt/Control
+# connections.
 - packet:
     data:
       cid: SIGNALING

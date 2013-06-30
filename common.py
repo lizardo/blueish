@@ -84,19 +84,26 @@ def device_add_watch(bd_addr, callback):
         adapter.FindDevice(bd_addr, reply_handler=remove_device,
                 error_handler=start_discovery)
 
-    def set_property(path, iface, name, value):
+    def set_property(path, iface, name, value, success_cb):
+        def reply_cb(*args):
+            success_cb()
+
+        def error_cb(error):
+            print("Could not set property \"%s\": %s" % (name, error))
+
         obj = dbus.Interface(bus.get_object("org.bluez", path),
                 "org.freedesktop.DBus.Properties")
-        obj.Set(iface, name, value)
+        obj.Set(iface, name, value, reply_handler=reply_cb,
+                error_handler=error_cb)
 
     def interfaces_added(path, ifaces):
         if "org.bluez.Adapter1" in ifaces:
+            print("Found adapter %s" % path)
             global adapter
             adapter = dbus.Interface(bus.get_object("org.bluez", path),
                     "org.bluez.Adapter1")
             set_property(path, "org.bluez.Adapter1", "Powered",
-                    dbus.Boolean(True))
-            adapter.StartDiscovery()
+                    dbus.Boolean(True), lambda: adapter.StartDiscovery())
         elif "org.bluez.Device1" in ifaces:
             d = ifaces["org.bluez.Device1"]
             if d["Adapter"] != adapter.object_path or d["Address"] != bd_addr:

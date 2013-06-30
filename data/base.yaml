@@ -489,6 +489,19 @@
 
 ---
 - packet:
+    opcode: {ocf: READ_PAGE_ACTIVITY, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_PAGE_ACTIVITY, ogf: HOST_CTL}
+      rparams: {interval: 0x0800, window: 0x0012, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
     opcode: {ocf: READ_REMOTE_FEATURES, ogf: LINK_CTL}
     params: {handle: 1}
   packet_indicator: COMMAND
@@ -585,6 +598,19 @@
       ncmd: 1
       opcode: {ocf: WRITE_INQUIRY_MODE, ogf: HOST_CTL}
       rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_PAGE_SCAN_TYPE, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_PAGE_SCAN_TYPE, ogf: HOST_CTL}
+      rparams: {type: 0, status: 0}
   packet_indicator: EVENT
 
 ---

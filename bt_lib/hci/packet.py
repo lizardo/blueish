@@ -402,6 +402,7 @@ le_ctl_commands = Enum(BitField("ocf", 10),
     LE_SET_ADVERTISING_DATA = 0x0008,
     LE_SET_SCAN_PARAMETERS = 0x000b,
     LE_SET_SCAN_ENABLE = 0x000c,
+    LE_CREATE_CONN = 0x000d,
     LE_READ_WHITE_LIST_SIZE = 0x000f,
     LE_READ_SUPPORTED_STATES = 0x001c,
 )
@@ -458,6 +459,21 @@ le_set_scan_enable_cp = Struct("le_set_scan_enable_cp",
 
 le_set_scan_enable_rp = Struct("le_set_scan_enable_rp",
     ULInt8("status"),
+)
+
+le_create_conn_cp = Struct("le_create_conn_cp",
+    ULInt16("scan_interval"),
+    ULInt16("scan_window"),
+    ULInt8("filter_policy"),
+    ULInt8("peer_addr_type"),
+    Array(6, ULInt8("peer_addr")),
+    ULInt8("own_addr_type"),
+    ULInt16("min_interval"),
+    ULInt16("max_interval"),
+    ULInt16("latency"),
+    ULInt16("supv_timeout"),
+    ULInt16("min_length"),
+    ULInt16("max_length"),
 )
 
 le_read_white_list_size_rp = Struct("le_read_white_list_size_rp",
@@ -552,6 +568,7 @@ command = Struct("command",
                 "LE_SET_ADVERTISING_DATA": le_set_advertising_data_cp,
                 "LE_SET_SCAN_PARAMETERS": le_set_scan_parameters_cp,
                 "LE_SET_SCAN_ENABLE": le_set_scan_enable_cp,
+                "LE_CREATE_CONN": le_create_conn_cp,
                 "LE_READ_WHITE_LIST_SIZE": Pass,
                 "LE_READ_SUPPORTED_STATES": Pass,
             }
@@ -706,6 +723,18 @@ evt_extended_inquiry_result = Struct("evt_extended_inquiry_result",
     Array(HCI_MAX_EIR_LENGTH, ULInt8("data")),
 )
 
+evt_le_conn_complete = Struct("evt_le_conn_complete",
+    ULInt8("status"),
+    ULInt16("handle"),
+    ULInt8("role"),
+    ULInt8("peer_addr_type"),
+    Array(6, ULInt8("peer_addr")),
+    ULInt16("interval"),
+    ULInt16("latency"),
+    ULInt16("supv_timeout"),
+    ULInt8("clock_accuracy"),
+)
+
 evt_le_adv_report = Struct("evt_le_adv_report",
     ULInt8("num_reports"),
     # FIXME: implement support for multiple reports
@@ -722,10 +751,12 @@ evt_le_adv_report = Struct("evt_le_adv_report",
 
 evt_le_meta_event = Struct("evt_le_meta_event",
     Enum(ULInt8("subevent"),
+        LE_CONN_COMPLETE = 0x01,
         LE_ADVERTISING_REPORT = 0x02,
     ),
     Switch("rparams", lambda ctx: ctx.subevent,
         {
+            "LE_CONN_COMPLETE": evt_le_conn_complete,
             "LE_ADVERTISING_REPORT": evt_le_adv_report,
         }
     ),

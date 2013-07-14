@@ -11,4 +11,4 @@ def device_found(device_proxy):
     dev.Connect(reply_handler=device_connect_reply,
             error_handler=device_connect_error)
 
-wait_for_device(packets, "12:34:12:34:12:34", device_found)
+wait_for_device(packets, "CA:FE:CA:FE:CA:FE", device_found)

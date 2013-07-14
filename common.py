@@ -57,33 +57,6 @@ def device_add_watch(bd_addr, callback):
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     bus = dbus.SystemBus()
 
-    def device_found(address, properties):
-        def create_device_reply(path):
-            print("New device (%s)" % path)
-            callback(bus.get_object("org.bluez", path))
-
-        def create_device_error(error):
-            print("Creating device failed: %s" % error)
-
-        adapter.StopDiscovery()
-        adapter.CreateDevice(bd_addr, reply_handler=create_device_reply,
-                error_handler=create_device_error)
-
-    def adapter_added(path):
-        def start_discovery(*args):
-            adapter.StartDiscovery()
-
-        def remove_device(path):
-            print("Removing existing device %s" % path)
-            adapter.RemoveDevice(path)
-            adapter.StartDiscovery()
-
-        global adapter
-        adapter = dbus.Interface(bus.get_object("org.bluez", path), "org.bluez.Adapter")
-        adapter.connect_to_signal("DeviceFound", device_found, arg0=bd_addr)
-        adapter.FindDevice(bd_addr, reply_handler=remove_device,
-                error_handler=start_discovery)
-
     def set_property(path, iface, name, value, success_cb):
         def reply_cb(*args):
             success_cb()
@@ -112,11 +85,6 @@ def device_add_watch(bd_addr, callback):
             adapter.StopDiscovery()
             callback(bus.get_object("org.bluez", path))
 
-    # BlueZ 4 API
-    manager = dbus.Interface(bus.get_object("org.bluez", "/"), "org.bluez.Manager")
-    manager.connect_to_signal("AdapterAdded", adapter_added)
-
-    # BlueZ 5 API
     object_manager = dbus.Interface(bus.get_object("org.bluez", "/"),
             "org.freedesktop.DBus.ObjectManager")
     object_manager.connect_to_signal("InterfacesAdded", interfaces_added)

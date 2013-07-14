@@ -22,6 +22,7 @@ sdp_uuid16 = Enum(UBInt16("sdp_uuid16"),
     HIDP = 0x0011,
     L2CAP = 0x0100,
     PUBLIC_BROWSE_GROUP = 0x1002,
+    SPP = 0x1101,
     HID = 0x1124,
     PNP_INFO = 0x1200,
 )

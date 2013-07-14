@@ -1,0 +1,273 @@
+# Minimum packets necessary for discovering and connecting to a BR/EDR device
+# Note that current BlueZ does interleaved (BR/EDR/LE) discovery, therefore we
+# need to support LE Scan commands as well.
+- packet:
+    opcode: {ocf: LE_SET_SCAN_PARAMETERS, ogf: LE_CTL}
+    params: {filter: 0, interval: 18, own_bdaddr_type: 0, type: 1, window: 18}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_SET_SCAN_PARAMETERS, ogf: LE_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+    params: {enable: 1, filter_dup: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+    params: {enable: 0, filter_dup: 0}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+
+- packet_indicator: COMMAND
+  packet:
+    opcode: &opcode {ocf: INQUIRY, ogf: LINK_CTL}
+    params:
+      lap: [51, 139, 158]
+      length: 4
+      num_rsp: 0
+- packet_indicator: EVENT
+  packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: *opcode
+      status: 0
+- packet_indicator: EVENT
+  packet:
+    evt: INQUIRY_RESULT
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      clock_offset: 0x8000
+      dev_class: [0, 0, 0]
+      num_rsp: 1
+      pscan_rep_mode: 0x02
+      reserved1: 0
+      reserved2: 0
+- packet_indicator: EVENT
+  packet:
+    evt: INQUIRY_COMPLETE
+    params: {status: 0}
+
+---
+- packet:
+    opcode: {ocf: INQUIRY_CANCEL, ogf: LINK_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: INQUIRY_CANCEL, ogf: LINK_CTL}
+      rparams: {status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: REMOTE_NAME_REQ, ogf: LINK_CTL}
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      clock_offset: 0
+      pscan_rep_mode: 2
+      reserved: 0
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: REMOTE_NAME_REQ, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: REMOTE_NAME_REQ_COMPLETE
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      name: test1234
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: REMOTE_NAME_REQ_CANCEL, ogf: LINK_CTL}
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: REMOTE_NAME_REQ_CANCEL, ogf: LINK_CTL}
+      rparams:
+        bdaddr: [52, 18, 52, 18, 52, 18]
+        status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: CREATE_CONN, ogf: LINK_CTL}
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      clock_offset: 0x8000
+      pkt_type: 24
+      pscan_rep_mode: 0x02
+      reserved: 0
+      role_switch: 1
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: CREATE_CONN, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: CONN_COMPLETE
+    params:
+      bdaddr: [52, 18, 52, 18, 52, 18]
+      encr_mode: 0
+      handle: 1
+      link_type: 1
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
+    params: {handle: 1, reason: 19}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: DISCONN_COMPLETE
+    params: {handle: 1, reason: 22, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_REMOTE_FEATURES, ogf: LINK_CTL}
+    params: {handle: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_REMOTE_FEATURES, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: READ_REMOTE_FEATURES_COMPLETE
+    params:
+      features: [164, 8, 0, 192, 88, 30, 123, 131]
+      handle: 1
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_REMOTE_EXT_FEATURES, ogf: LINK_CTL}
+    params: {handle: 1, page_num: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_REMOTE_EXT_FEATURES, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: READ_REMOTE_EXT_FEATURES_COMPLETE
+    params:
+      features: [0, 0, 0, 0, 0, 0, 0, 0]
+      handle: 1
+      max_page_num: 1
+      page_num: 1
+      status: 0
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_REMOTE_VERSION, ogf: LINK_CTL}
+    params: {handle: 1}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_REMOTE_VERSION, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: READ_REMOTE_VERSION_COMPLETE
+    params: {handle: 1, lmp_subver: 0, lmp_ver: 6, manufacturer: 63, status: 0}
+  packet_indicator: EVENT
+
+---
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START_NO_FLUSH, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_REQ
+        tid: 0
+        params:
+          max_count: 65535
+          attr_list:
+            data:
+              - {data: 65535, type_size: UINT32}
+            type_size: SEQ8
+          pattern:
+            data:
+              - {data: L2CAP, type_size: UUID16}
+            type_size: SEQ8
+          cont: ""
+- packet:
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_RSP
+        tid: 0
+        params:
+          attr_lists:
+            data:
+              - data:
+                  - {data: 0, type_size: UINT16}
+                  - {data: 0x10000, type_size: UINT32}
+                  - {data: 1, type_size: UINT16}
+                  - {data: [{data: SPP, type_size: UUID16}], type_size: SEQ8}
+                type_size: SEQ16
+            type_size: SEQ16
+          cont: ""
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT

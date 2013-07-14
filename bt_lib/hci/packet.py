@@ -497,9 +497,8 @@ Opcode = TunnelAdapter(
 
 command = Struct("command",
     Opcode,
-    PLenAdapter(Sequence("params",
-        ULInt8("plen"),
-        Switch("pdata", lambda ctx: ctx._.opcode.ocf,
+    TunnelAdapter(PascalString("params", ULInt8("plen")),
+        Switch("params", lambda ctx: ctx.opcode.ocf,
             {
                 # Link Control (OGF 0x01)
                 "INQUIRY": inquiry_cp,
@@ -557,7 +556,7 @@ command = Struct("command",
                 "LE_READ_SUPPORTED_STATES": Pass,
             }
         ),
-    )),
+    ),
 )
 
 # Events
@@ -724,9 +723,8 @@ event = Struct("event",
         READ_REMOTE_EXT_FEATURES_COMPLETE = 0x23,
         EXTENDED_INQUIRY_RESULT = 0x2f,
     ),
-    PLenAdapter(Sequence("params",
-        ULInt8("plen"),
-        Switch("pdata", lambda ctx: ctx._.evt,
+    TunnelAdapter(PascalString("params", ULInt8("plen")),
+        Switch("params", lambda ctx: ctx.evt,
             {
                 "INQUIRY_COMPLETE": evt_inquiry_complete,
                 "INQUIRY_RESULT": evt_inquiry_result,
@@ -744,5 +742,5 @@ event = Struct("event",
                 "EXTENDED_INQUIRY_RESULT": evt_extended_inquiry_result,
             }
         ),
-    )),
+    ),
 )

@@ -338,6 +338,18 @@
       opcode: {ocf: LE_SET_SCAN_ENABLE, ogf: LE_CTL}
       rparams: {status: 0}
   packet_indicator: EVENT
+- packet:
+    evt: LE_META_EVENT
+    params:
+      subevent: LE_ADVERTISING_REPORT
+      rparams:
+        num_reports: 1
+        event_type: ADV_IND
+        addr_type: ADDR_LE_DEV_PUBLIC
+        addr: [0xfe, 0xca, 0xfe, 0xca, 0xfe, 0xca]
+        data: ""
+        rssi: 0
+  packet_indicator: EVENT
 
 ---
 - packet:

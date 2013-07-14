@@ -706,6 +706,31 @@ evt_extended_inquiry_result = Struct("evt_extended_inquiry_result",
     Array(HCI_MAX_EIR_LENGTH, ULInt8("data")),
 )
 
+evt_le_adv_report = Struct("evt_le_adv_report",
+    ULInt8("num_reports"),
+    # FIXME: implement support for multiple reports
+    Enum(ULInt8("event_type"),
+        ADV_IND = 0x00,
+    ),
+    Enum(ULInt8("addr_type"),
+        ADDR_LE_DEV_PUBLIC = 0x00,
+    ),
+    Array(6, ULInt8("addr")),
+    PascalString("data"),
+    SLInt8("rssi"),
+)
+
+evt_le_meta_event = Struct("evt_le_meta_event",
+    Enum(ULInt8("subevent"),
+        LE_ADVERTISING_REPORT = 0x02,
+    ),
+    Switch("rparams", lambda ctx: ctx.subevent,
+        {
+            "LE_ADVERTISING_REPORT": evt_le_adv_report,
+        }
+    ),
+)
+
 event = Struct("event",
     Enum(ULInt8("evt"),
         INQUIRY_COMPLETE = 0x01,
@@ -722,6 +747,7 @@ event = Struct("event",
         NUM_COMP_PKTS = 0x13,
         READ_REMOTE_EXT_FEATURES_COMPLETE = 0x23,
         EXTENDED_INQUIRY_RESULT = 0x2f,
+        LE_META_EVENT = 0x3e,
     ),
     TunnelAdapter(PascalString("params", ULInt8("plen")),
         Switch("params", lambda ctx: ctx.evt,
@@ -740,6 +766,7 @@ event = Struct("event",
                 "NUM_COMP_PKTS": evt_num_comp_pkts,
                 "READ_REMOTE_EXT_FEATURES_COMPLETE": evt_read_remote_ext_features_complete,
                 "EXTENDED_INQUIRY_RESULT": evt_extended_inquiry_result,
+                "LE_META_EVENT": evt_le_meta_event,
             }
         ),
     ),

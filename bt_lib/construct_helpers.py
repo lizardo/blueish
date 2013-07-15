@@ -80,6 +80,16 @@ class AssertEof(Subconstruct):
 
         return obj
 
+class BdAddrAdapter(Adapter):
+    def _encode(self, obj, context):
+        return "".join(chr(int(c, 16)) for c in reversed(obj.split(":")))
+
+    def _decode(self, obj, context):
+        return ":".join("%02X" % ord(c) for c in reversed(obj))
+
+def BdAddr(name):
+    return BdAddrAdapter(Bytes(name, 6))
+
 def pprint_container(obj, indent=0):
     s = ""
     if isinstance(obj, Container):

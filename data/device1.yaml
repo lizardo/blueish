@@ -31,7 +31,7 @@
         num_reports: 1
         event_type: ADV_IND
         addr_type: ADDR_LE_DEV_PUBLIC
-        addr: [0xfe, 0xca, 0xfe, 0xca, 0xfe, 0xca]
+        addr: "CA:FE:CA:FE:CA:FE"
         data: ""
         rssi: 0
   packet_indicator: EVENT
@@ -60,7 +60,7 @@
       min_interval: 40
       min_length: 0
       own_addr_type: 0
-      peer_addr: [254, 202, 254, 202, 254, 202]
+      peer_addr: "CA:FE:CA:FE:CA:FE"
       peer_addr_type: 0
       scan_interval: 96
       scan_window: 48
@@ -82,7 +82,7 @@
         handle: 1
         role: 0x00
         peer_addr_type: 0x00
-        peer_addr: [0xfe, 0xca, 0xfe, 0xca, 0xfe, 0xca]
+        peer_addr: "CA:FE:CA:FE:CA:FE"
         interval: 0x0006
         latency: 0x0006
         supv_timeout: 0x000A

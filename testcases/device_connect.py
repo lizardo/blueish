@@ -1,3 +1,7 @@
+from __future__ import print_function
+from common import *
+from packets import *
+
 def device_found(device_proxy):
     def device_connect_reply():
         print("device connected")
@@ -11,4 +15,5 @@ def device_found(device_proxy):
     dev.Connect(reply_handler=device_connect_reply,
             error_handler=device_connect_error)
 
-wait_for_device(packets, "CA:FE:CA:FE:CA:FE", device_found)
+device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
+mainloop_run(packets)

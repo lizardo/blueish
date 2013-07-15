@@ -16,15 +16,17 @@
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 from __future__ import print_function
 import sys
+import argparse
 import yaml
 from construct import Container, ListContainer
 from bt_lib.hci.transport import uart
 from bt_lib.sdp import sdp
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: %s <testcase.py> <data1.yaml> [data2.yaml ...]" % sys.argv[0], file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description="Parse data files and generate a packets.py.")
+    parser.add_argument("datafile", nargs="+", type=file,
+            help="specify one or more data files in YAML format")
+    args = parser.parse_args()
 
     yaml.add_constructor('tag:yaml.org,2002:map',
             lambda l, n: Container(**l.construct_mapping(n)))
@@ -33,16 +35,16 @@ if __name__ == "__main__":
     yaml.add_constructor('!sdp',
             lambda l, n: sdp.build(Container(**l.construct_mapping(n))))
 
-    print(open("common.py", "r").read())
-    print("packets = {}")
-    for data_file in sys.argv[2:]:
-        print("\npackets.update({")
-        with open(data_file, "r") as data:
+    print("Generating testcases/packets.py...")
+
+    with open("testcases/packets.py", "w") as modfile:
+        print("packets = {}", file=modfile)
+        for data in args.datafile:
+            print("\npackets.update({", file=modfile)
             for doc in yaml.load_all(data):
                 if doc is None:
                     print("Ignoring empty document!", file=sys.stderr)
                     continue
                 p = map(lambda c: uart.build(c).encode("hex").upper(), doc)
-                print("    '%s': %s," % (p[0], p[1:]))
-        print("})")
-    print("\n" + open(sys.argv[1], "r").read())
+                print("    '%s': %s," % (p[0], p[1:]), file=modfile)
+            print("})", file=modfile)

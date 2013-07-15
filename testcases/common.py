@@ -168,8 +168,7 @@ class RFKill(object):
 
         return True
 
-def wait_for_device(packets, bdaddr, callback):
-    device_add_watch(bdaddr, callback)
+def mainloop_run(packets):
     stateful = StatefulPacket()
     rfkill = RFKill()
     dispatcher = Dispatcher(packets, stateful)

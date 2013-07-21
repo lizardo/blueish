@@ -21,6 +21,7 @@ import yaml
 from construct import Container, ListContainer
 from bt_lib.hci.transport import uart
 from bt_lib.sdp import sdp
+from bt_lib.att import att
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Parse data files and generate a packets.py.")
@@ -34,6 +35,8 @@ if __name__ == "__main__":
             lambda l, n: ListContainer(l.construct_sequence(n)))
     yaml.add_constructor('!sdp',
             lambda l, n: sdp.build(Container(**l.construct_mapping(n))))
+    yaml.add_constructor('!att',
+            lambda l, n: att.build(Container(**l.construct_mapping(n))))
 
     print("Generating testcases/packets.py...")
 

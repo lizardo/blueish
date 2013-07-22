@@ -176,4 +176,4 @@ def mainloop_run(packets):
     try:
         loop.run()
     except KeyboardInterrupt:
-        print("\\nExiting...")
+        print("\nExiting...")

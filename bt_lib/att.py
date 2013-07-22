@@ -146,6 +146,11 @@ write_req = Struct("write_req",
     GreedyRange(ULInt8("value")),
 )
 
+write_cmd = Struct("write_cmd",
+    ULInt16("handle"),
+    GreedyRange(ULInt8("value")),
+)
+
 att = Struct("att",
     Opcode("opcode"),
     Switch("params", lambda ctx: ctx.opcode,
@@ -161,6 +166,7 @@ att = Struct("att",
             "READ_BY_GROUP_RESP": read_by_group_resp,
             "WRITE_REQ": write_req,
             "WRITE_RESP": Pass,
+            "WRITE_CMD": write_cmd,
         }
     ),
 )

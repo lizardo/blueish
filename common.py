@@ -151,7 +151,6 @@ class Dispatcher(object):
         assert len(buf) >= plen + hdr_len
 
         buf = buf.encode("hex").upper()
-        print(buf)
 
         if packets.get(buf) is not None:
             for p in packets[buf]:
@@ -161,7 +160,7 @@ class Dispatcher(object):
             if p:
                 os.write(fd, p.decode("hex"))
             else:
-                print("Unsupported packet")
+                print("Unsupported packet: %s" % buf)
                 sys.exit(1)
                 return False
 

@@ -24,13 +24,20 @@ def device_found(device_proxy):
         obj.Set(iface, name, value, reply_handler=reply_cb,
                 error_handler=error_cb)
 
+    def delay():
+        print("Testing Proximity IAS...")
+        set_property(device_proxy, "org.bluez.ProximityMonitor1",
+                "ImmediateAlertLevel", "high", lambda: None)
+
     def interfaces_added(path, ifaces):
         if path != device_proxy.object_path:
             return
         if "org.bluez.ProximityMonitor1" in ifaces:
-            print("Testing Proximity IAS...")
-            set_property(device_proxy, "org.bluez.ProximityMonitor1",
-                    "ImmediateAlertLevel", "high", lambda: None)
+            # FIXME: add delay to avoid Proximity bug where Write Command will
+            # use handle 0x0000 if ImmediateAlertLevel is set before
+            # characteristic discovery
+            import glib
+            glib.timeout_add_seconds(1, delay)
 
     def device_connect_reply():
         print("device connected")

@@ -43,8 +43,11 @@ def device_found(device_proxy):
         def test_api():
             if "org.bluez.ProximityMonitor1" in ifaces:
                 set_property(device_proxy, "org.bluez.ProximityMonitor1",
-                        "ImmediateAlertLevel", "high",
-                        lambda: print("IAS Alert Level set to high"))
+                        "ImmediateAlertLevel", "mild",
+                        lambda: print("IAS Alert Level set to mild"))
+                set_property(device_proxy, "org.bluez.ProximityMonitor1",
+                        "LinkLossAlertLevel", "mild",
+                        lambda: print("LLS Alert Level set to mild"))
             if "org.bluez.CyclingSpeed1" in ifaces:
                 def show_properties(properties):
                     for p in ["WheelRevolutionDataSupported",

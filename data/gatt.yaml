@@ -421,9 +421,45 @@
         opcode: WRITE_CMD
         params:
           handle: 0x000c
+          value: [0x00]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_CMD
+        params:
+          handle: 0x000c
+          value: [0x01]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_CMD
+        params:
+          handle: 0x000c
           value: [0x02]
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
 
 ---
 - packet:
@@ -626,6 +662,30 @@
         opcode: READ_RESP
         params:
           value: [0x01, 0x02, 0x00, 0x03, 0x00, 0x04, 0x00]
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_REQ
+        params:
+          handle: 0x000f
+          value: [0x01]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_RESP
+        params:
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:

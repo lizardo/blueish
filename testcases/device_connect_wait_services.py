@@ -6,14 +6,18 @@ def device_found(device_proxy):
     bus = dbus.SystemBus()
 
     def properties_changed(interface, changed, invalidated):
-        if interface != "org.bluez.Device1":
-            return
-        if "UUIDs" in changed:
-            for uuid in changed["UUIDs"]:
-                print("UUID: %s" % uuid)
-        if "Modalias" in changed:
-            print("Modalias: %s" % changed["Modalias"])
-            assert changed["Modalias"] == "bluetooth:v0002p0003d0004"
+        if interface == "org.bluez.Device1":
+            if "UUIDs" in changed:
+                for uuid in changed["UUIDs"]:
+                    print("UUID: %s" % uuid)
+            if "Modalias" in changed:
+                print("Modalias: %s" % changed["Modalias"])
+                assert changed["Modalias"] == "bluetooth:v0002p0003d0004"
+        elif interface == "org.bluez.ProximityMonitor1":
+            if "ImmediateAlertLevel" in changed:
+                print("ImmediateAlertLevel: %s" % changed["ImmediateAlertLevel"])
+            if "LinkLossAlertLevel" in changed:
+                print("LinkLossAlertLevel: %s" % changed["LinkLossAlertLevel"])
 
     def set_property(proxy, iface, name, value, success_cb):
         def reply_cb(*args):

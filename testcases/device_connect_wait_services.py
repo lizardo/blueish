@@ -39,24 +39,27 @@ def device_found(device_proxy):
     def interfaces_added(path, ifaces):
         if path != device_proxy.object_path:
             return
-        if "org.bluez.ProximityMonitor1" in ifaces:
-            # FIXME: add delay to avoid Proximity bug where Write Command will
-            # use handle 0x0000 if ImmediateAlertLevel is set before
-            # characteristic discovery
-            # ("exists" callback for D-Bus property is missing)
-            import glib
-            glib.timeout_add_seconds(1, set_property, device_proxy,
-                    "org.bluez.ProximityMonitor1", "ImmediateAlertLevel",
-                    "high", lambda: print("IAS Alert Level set to high"))
-        if "org.bluez.CyclingSpeed1" in ifaces:
-            def show_properties(*args):
-                for p in ["WheelRevolutionDataSupported",
-                        "MultipleLocationsSupported"]:
-                    print("%s: %s" % (p, args[0][p]))
-            # FIXME: same problem as above, delay property access so the
-            # necessary characteristics can be read
-            glib.timeout_add_seconds(1, get_properties, device_proxy,
-                    "org.bluez.CyclingSpeed1", show_properties)
+
+        def test_api():
+            if "org.bluez.ProximityMonitor1" in ifaces:
+                set_property(device_proxy, "org.bluez.ProximityMonitor1",
+                        "ImmediateAlertLevel", "high",
+                        lambda: print("IAS Alert Level set to high"))
+            if "org.bluez.CyclingSpeed1" in ifaces:
+                def show_properties(properties):
+                    for p in ["WheelRevolutionDataSupported",
+                            "MultipleLocationsSupported"]:
+                        print("%s: %s" % (p, properties[p]))
+                    assert properties["WheelRevolutionDataSupported"] == 1
+                    assert properties["MultipleLocationsSupported"] == 0
+                get_properties(device_proxy, "org.bluez.CyclingSpeed1",
+                        show_properties)
+
+        # FIXME: because the "exists" callback is missing on the D-Bus
+        # property, delay property access so the necessary characteristics
+        # can be read
+        import glib
+        glib.timeout_add_seconds(1, test_api)
 
     def device_connect_reply():
         print("device connected")

@@ -126,6 +126,14 @@ read_by_type_resp = Struct("read_by_type_resp",
     )),
 )
 
+read_req = Struct("read_req",
+    ULInt16("handle"),
+)
+
+read_resp = Struct("read_resp",
+    GreedyRange(ULInt8("value")),
+)
+
 read_by_group_req = Struct("read_by_group_req",
     ULInt16("start_handle"),
     ULInt16("end_handle"),
@@ -162,6 +170,8 @@ att = Struct("att",
             "FIND_INFO_RESP": find_info_resp,
             "READ_BY_TYPE_REQ": read_by_type_req,
             "READ_BY_TYPE_RESP": read_by_type_resp,
+            "READ_REQ": read_req,
+            "READ_RESP": read_resp,
             "READ_BY_GROUP_REQ": read_by_group_req,
             "READ_BY_GROUP_RESP": read_by_group_resp,
             "WRITE_REQ": write_req,

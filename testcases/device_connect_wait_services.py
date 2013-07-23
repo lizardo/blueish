@@ -24,10 +24,15 @@ def device_found(device_proxy):
         obj.Set(iface, name, value, reply_handler=reply_cb,
                 error_handler=error_cb)
 
-    def delay():
-        print("Testing Proximity IAS...")
-        set_property(device_proxy, "org.bluez.ProximityMonitor1",
-                "ImmediateAlertLevel", "high", lambda: None)
+    def get_properties(proxy, iface, success_cb):
+        def reply_cb(*args):
+            success_cb(*args)
+
+        def error_cb(error):
+            print("Could not get properties: %s" % error)
+
+        obj = dbus.Interface(proxy, "org.freedesktop.DBus.Properties")
+        obj.GetAll(iface, reply_handler=reply_cb, error_handler=error_cb)
 
     def interfaces_added(path, ifaces):
         if path != device_proxy.object_path:
@@ -36,8 +41,20 @@ def device_found(device_proxy):
             # FIXME: add delay to avoid Proximity bug where Write Command will
             # use handle 0x0000 if ImmediateAlertLevel is set before
             # characteristic discovery
+            # ("exists" callback for D-Bus property is missing)
             import glib
-            glib.timeout_add_seconds(1, delay)
+            glib.timeout_add_seconds(1, set_property, device_proxy,
+                    "org.bluez.ProximityMonitor1", "ImmediateAlertLevel",
+                    "high", lambda: print("IAS Alert Level set to high"))
+        if "org.bluez.CyclingSpeed1" in ifaces:
+            def show_properties(*args):
+                for p in ["WheelRevolutionDataSupported",
+                        "MultipleLocationsSupported"]:
+                    print("%s: %s" % (p, args[0][p]))
+            # FIXME: same problem as above, delay property access so the
+            # necessary characteristics can be read
+            glib.timeout_add_seconds(1, get_properties, device_proxy,
+                    "org.bluez.CyclingSpeed1", show_properties)
 
     def device_connect_reply():
         print("device connected")

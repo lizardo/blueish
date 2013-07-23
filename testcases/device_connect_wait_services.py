@@ -8,10 +8,12 @@ def device_found(device_proxy):
     def properties_changed(interface, changed, invalidated):
         if interface != "org.bluez.Device1":
             return
-        if not changed.get("UUIDs"):
-            return
-        for uuid in changed["UUIDs"]:
-            print("UUID: %s" % uuid)
+        if "UUIDs" in changed:
+            for uuid in changed["UUIDs"]:
+                print("UUID: %s" % uuid)
+        if "Modalias" in changed:
+            print("Modalias: %s" % changed["Modalias"])
+            assert changed["Modalias"] == "bluetooth:v0002p0003d0004"
 
     def set_property(proxy, iface, name, value, success_cb):
         def reply_cb(*args):

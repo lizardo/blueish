@@ -2,6 +2,15 @@ from __future__ import print_function
 from common import *
 from packets import *
 
+gatt_services = set([
+    "00001800-0000-1000-8000-00805f9b34fb",
+    "00001801-0000-1000-8000-00805f9b34fb",
+    "00001802-0000-1000-8000-00805f9b34fb",
+    "00001803-0000-1000-8000-00805f9b34fb",
+    "0000180a-0000-1000-8000-00805f9b34fb",
+    "00001816-0000-1000-8000-00805f9b34fb",
+])
+
 def device_found(device_proxy):
     bus = dbus.SystemBus()
 
@@ -10,6 +19,7 @@ def device_found(device_proxy):
             if "UUIDs" in changed:
                 for uuid in changed["UUIDs"]:
                     print("UUID: %s" % uuid)
+                assert gatt_services == set(changed["UUIDs"])
             if "Modalias" in changed:
                 print("Modalias: %s" % changed["Modalias"])
                 assert changed["Modalias"] == "bluetooth:v0002p0003d0004"

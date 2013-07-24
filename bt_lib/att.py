@@ -131,7 +131,7 @@ read_req = Struct("read_req",
 )
 
 read_resp = Struct("read_resp",
-    GreedyRange(ULInt8("value")),
+    OptionalGreedyRange(ULInt8("value")),
 )
 
 read_by_group_req = Struct("read_by_group_req",

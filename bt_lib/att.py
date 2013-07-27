@@ -159,6 +159,11 @@ write_cmd = Struct("write_cmd",
     GreedyRange(ULInt8("value")),
 )
 
+handle_notify = Struct("handle_notify",
+    ULInt16("handle"),
+    GreedyRange(ULInt8("value")),
+)
+
 handle_ind = Struct("handle_ind",
     ULInt16("handle"),
     GreedyRange(ULInt8("value")),
@@ -182,6 +187,7 @@ att = Struct("att",
             "WRITE_REQ": write_req,
             "WRITE_RESP": Pass,
             "WRITE_CMD": write_cmd,
+            "HANDLE_NOTIFY": handle_notify,
             "HANDLE_IND": handle_ind,
             "HANDLE_CNF": Pass,
         }

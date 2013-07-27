@@ -269,4 +269,28 @@
     evt: NUM_COMP_PKTS
     params: {count: 1, handle: 1, num_handles: 1}
   packet_indicator: EVENT
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: HANDLE_IND
+        params:
+          handle: 0x0008
+          value: [0x01, 0x00, 0xff, 0xff]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: HANDLE_CNF
+        params:
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
 

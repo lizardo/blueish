@@ -2,7 +2,7 @@ from __future__ import print_function
 from common import *
 from packets import *
 
-def device_found(device_proxy):
+def device_found(adapter_proxy, device_proxy):
     def device_connect_reply():
         print("device connected")
         sys.exit(0)

@@ -17,7 +17,10 @@ gatt_services = set([
     "00001816-0000-1000-8000-00805f9b34fb",
 ])
 
-def device_found(device_proxy):
+watchers = {}
+
+def device_found(adapter_proxy, device_proxy):
+    global watchers
     bus = dbus.SystemBus()
 
     def properties_changed(interface, changed, invalidated):
@@ -34,6 +37,9 @@ def device_found(device_proxy):
                 print("ImmediateAlertLevel: %s" % changed["ImmediateAlertLevel"])
             if "LinkLossAlertLevel" in changed:
                 print("LinkLossAlertLevel: %s" % changed["LinkLossAlertLevel"])
+        elif interface == "org.bluez.CyclingSpeed1":
+            if "Location" in changed:
+                print("[CSC] Location: %s" % changed["Location"])
 
     def set_property(proxy, iface, name, value, success_cb):
         def reply_cb(*args):
@@ -69,41 +75,60 @@ def device_found(device_proxy):
                         "LinkLossAlertLevel", "mild",
                         lambda: print("LLS Alert Level set to mild"))
             if "org.bluez.CyclingSpeed1" in ifaces:
+                class CscWatcher(dbus.service.Object):
+                    @dbus.service.method("org.bluez.CyclingSpeedWatcher1", in_signature="oa{sv}", out_signature="")
+                    def MeasurementReceived(self, device, measure):
+                        print("[CSC] Measurement received from %s" % device)
+                        manager = dbus.Interface(adapter_proxy, "org.bluez.CyclingSpeedManager1")
+                        manager.UnregisterWatcher("/csc_watcher",
+                                reply_handler=lambda *a: print("[CSC] Watcher unregistered"),
+                                error_handler=lambda e: print("[CSC] Could not unregister watcher: %s" % e))
+
+                obj = dbus.Interface(device_proxy, "org.bluez.CyclingSpeed1")
+
                 def show_properties(properties):
                     for p in ["WheelRevolutionDataSupported",
-                            "MultipleLocationsSupported"]:
-                        print("%s: %s" % (p, properties[p]))
+                            "MultipleLocationsSupported", "Location", "SupportedLocations"]:
+                        print("[CSC] %s: %s" % (p, properties[p]))
                     assert properties["WheelRevolutionDataSupported"] == 1
-                    assert properties["MultipleLocationsSupported"] == 0
+                    assert properties["MultipleLocationsSupported"] == 1
+                    assert properties["Location"] == "other"
+                    assert set(properties["SupportedLocations"]) == set(["other", "hip"])
+                    glib.timeout_add_seconds(1, set_property, device_proxy,
+                            "org.bluez.CyclingSpeed1", "Location", "hip",
+                            lambda: print("[CSC] Location set to hip"))
+
                 get_properties(device_proxy, "org.bluez.CyclingSpeed1",
                         show_properties)
-                obj = dbus.Interface(device_proxy, "org.bluez.CyclingSpeed1")
                 obj.SetCumulativeWheelRevolutions(dbus.UInt32(0x1234),
                         reply_handler=lambda *a: print("[CSC] SetCumulativeWheelRevolutions() successful"),
                         error_handler=lambda e: print("[CSC] SetCumulativeWheelRevolutions() failed: %s" % e))
+
+                watchers["csc"] = CscWatcher(bus, "/csc_watcher")
+                manager = dbus.Interface(adapter_proxy, "org.bluez.CyclingSpeedManager1")
+                manager.RegisterWatcher("/csc_watcher",
+                        reply_handler=lambda *a: print("[CSC] Watcher registered"),
+                        error_handler=lambda e: print("[CSC] Could not register watcher: %s" % e))
+
             if "org.bluez.HeartRate1" in ifaces:
-                class Watcher(dbus.service.Object):
+                class HrsWatcher(dbus.service.Object):
                     @dbus.service.method("org.bluez.HeartRateWatcher1", in_signature="oa{sv}", out_signature="")
                     def MeasurementReceived(self, device, measure):
                         print("[HRS] Measurement received from %s" % device)
+                        manager = dbus.Interface(adapter_proxy, "org.bluez.HeartRateManager1")
                         manager.UnregisterWatcher("/hrs_watcher",
                                 reply_handler=lambda *a: print("[HRS] Watcher unregistered"),
                                 error_handler=lambda e: print("[HRS] Could not unregister watcher: %s" % e))
 
-                def register_watch(properties):
-                    global watcher
-                    watcher = Watcher(bus, "/hrs_watcher")
-                    global manager
-                    manager = dbus.Interface(bus.get_object("org.bluez", properties["Adapter"]),
-                            "org.bluez.HeartRateManager1")
-                    manager.RegisterWatcher("/hrs_watcher",
-                            reply_handler=lambda *a: print("[HRS] Watcher registered"),
-                            error_handler=lambda e: print("[HRS] Could not register watcher: %s" % e))
+                watchers["hrs"] = HrsWatcher(bus, "/hrs_watcher")
+                manager = dbus.Interface(adapter_proxy, "org.bluez.HeartRateManager1")
+                manager.RegisterWatcher("/hrs_watcher",
+                        reply_handler=lambda *a: print("[HRS] Watcher registered"),
+                        error_handler=lambda e: print("[HRS] Could not register watcher: %s" % e))
 
                 obj = dbus.Interface(device_proxy, "org.bluez.HeartRate1")
                 obj.Reset(reply_handler=lambda *a: print("[HRS] Reset() successful"),
                         error_handler=lambda e: print("[HRS] Reset() failed: %s" % e))
-                get_properties(device_proxy, "org.bluez.Device1", register_watch)
 
                 def show_properties(properties):
                     for p in ["Location", "ResetSupported"]:

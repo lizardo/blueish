@@ -83,7 +83,7 @@ def device_add_watch(bd_addr, callback):
                 return
             print("Found device %s" % path)
             adapter.StopDiscovery()
-            callback(bus.get_object("org.bluez", path))
+            callback(adapter.proxy_object, bus.get_object("org.bluez", path))
 
     object_manager = dbus.Interface(bus.get_object("org.bluez", "/"),
             "org.freedesktop.DBus.ObjectManager")

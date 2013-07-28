@@ -137,6 +137,40 @@ def device_found(adapter_proxy, device_proxy):
                     assert properties["ResetSupported"] == 1
 
                 get_properties(device_proxy, "org.bluez.HeartRate1", show_properties)
+            if "org.bluez.Thermometer1" in ifaces:
+                class HtsWatcher(dbus.service.Object):
+                    @dbus.service.method("org.bluez.ThermometerWatcher1", in_signature="oa{sv}", out_signature="")
+                    def MeasurementReceived(self, device, measure):
+                        print("[HTS] Measurement received from %s" % device)
+                        manager = dbus.Interface(adapter_proxy, "org.bluez.ThermometerManager1")
+                        manager.DisableIntermediateMeasurement("/hts_watcher",
+                                reply_handler=lambda *a: print("[HTS] DisableIntermediateMeasurement() successful"),
+                                error_handler=lambda e: print("[HTS] DisableIntermediateMeasurement() failed: %s" % e))
+                        manager.UnregisterWatcher("/hts_watcher",
+                                reply_handler=lambda *a: print("[HTS] Watcher unregistered"),
+                                error_handler=lambda e: print("[HTS] Could not unregister watcher: %s" % e))
+
+                watchers["hts"] = HtsWatcher(bus, "/hts_watcher")
+                manager = dbus.Interface(adapter_proxy, "org.bluez.ThermometerManager1")
+                manager.RegisterWatcher("/hts_watcher",
+                        reply_handler=lambda *a: print("[HTS] Watcher registered"),
+                        error_handler=lambda e: print("[HTS] Could not register watcher: %s" % e))
+                manager.EnableIntermediateMeasurement("/hts_watcher",
+                        reply_handler=lambda *a: print("[HTS] EnableIntermediateMeasurement() successful"),
+                        error_handler=lambda e: print("[HTS] EnableIntermediateMeasurement() failed: %s" % e))
+
+                def show_properties(properties):
+                    for p in ["Maximum", "Minimum", "Intermediate", "Interval"]:
+                        print("[HTS] %s: %s" % (p, properties[p]))
+                    assert properties["Maximum"] == 0xffff
+                    assert properties["Minimum"] == 0x0001
+                    assert properties["Intermediate"] == 1
+                    assert properties["Interval"] == 120
+                    set_property(device_proxy, "org.bluez.Thermometer1",
+                            "Interval", dbus.UInt16(240),
+                            lambda: print("[HTS] Interval set to 240"))
+
+                get_properties(device_proxy, "org.bluez.Thermometer1", show_properties)
 
         # FIXME: because the "exists" callback is missing on the D-Bus
         # property, delay property access so the necessary characteristics

@@ -34,7 +34,7 @@
       data: !att
         opcode: READ_BY_GROUP_REQ
         params:
-          start_handle: &handle 0x0031
+          start_handle: &handle 0x0035
           end_handle: 0xffff
           group_type: 0x2800
     header: {flags: START_NO_FLUSH, handle: 1}

@@ -1,6 +1,7 @@
 from __future__ import print_function
 from common import *
 from packets import *
+import dbus.service
 
 gatt_services = set([
     "00001800-0000-1000-8000-00805f9b34fb",
@@ -76,6 +77,37 @@ def device_found(device_proxy):
                     assert properties["MultipleLocationsSupported"] == 0
                 get_properties(device_proxy, "org.bluez.CyclingSpeed1",
                         show_properties)
+            if "org.bluez.HeartRate1" in ifaces:
+                class Watcher(dbus.service.Object):
+                    @dbus.service.method("org.bluez.HeartRateWatcher1", in_signature="oa{sv}", out_signature="")
+                    def MeasurementReceived(self, device, measure):
+                        print("[HRS] Measurement received from %s" % device)
+                        manager.UnregisterWatcher("/hrs_watcher",
+                                reply_handler=lambda *a: print("[HRS] Watcher unregistered"),
+                                error_handler=lambda e: print("[HRS] Could not unregister watcher: %s" % e))
+
+                def register_watch(properties):
+                    global watcher
+                    watcher = Watcher(bus, "/hrs_watcher")
+                    global manager
+                    manager = dbus.Interface(bus.get_object("org.bluez", properties["Adapter"]),
+                            "org.bluez.HeartRateManager1")
+                    manager.RegisterWatcher("/hrs_watcher",
+                            reply_handler=lambda *a: print("[HRS] Watcher registered"),
+                            error_handler=lambda e: print("[HRS] Could not register watcher: %s" % e))
+
+                obj = dbus.Interface(device_proxy, "org.bluez.HeartRate1")
+                obj.Reset(reply_handler=lambda *a: print("[HRS] Reset() successful"),
+                        error_handler=lambda e: print("[HRS] Reset() failed: %s" % e))
+                get_properties(device_proxy, "org.bluez.Device1", register_watch)
+
+                def show_properties(properties):
+                    for p in ["Location", "ResetSupported"]:
+                        print("[HRS] %s: %s" % (p, properties[p]))
+                    assert properties["Location"] == "other"
+                    assert properties["ResetSupported"] == 1
+
+                get_properties(device_proxy, "org.bluez.HeartRate1", show_properties)
 
         # FIXME: because the "exists" callback is missing on the D-Bus
         # property, delay property access so the necessary characteristics

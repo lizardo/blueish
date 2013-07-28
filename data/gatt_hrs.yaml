@@ -4,7 +4,7 @@
       data: !att
         opcode: READ_BY_GROUP_REQ
         params:
-          start_handle: 0x001d
+          start_handle: 0x0020
           end_handle: 0xffff
           group_type: 0x2800
     header: {flags: START_NO_FLUSH, handle: 1}
@@ -17,7 +17,7 @@
         params:
           length: 6
           data_list:
-            - {handle: 0x001d, end_handle: 0x0024, value: "\x0d\x18"}
+            - {handle: 0x0020, end_handle: 0x0027, value: "\x0d\x18"}
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -32,8 +32,8 @@
       data: !att
         opcode: READ_BY_TYPE_REQ
         params:
-          start_handle: 0x001d
-          end_handle: 0x0024
+          start_handle: 0x0020
+          end_handle: 0x0027
           type: 0x2802
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
@@ -44,7 +44,7 @@
         opcode: ERROR_RESP
         params:
           request: READ_BY_TYPE_REQ
-          handle: 0x001d
+          handle: 0x0020
           error: ATTR_NOT_FOUND
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
@@ -60,8 +60,8 @@
       data: !att
         opcode: READ_BY_TYPE_REQ
         params:
-          start_handle: 0x001d
-          end_handle: 0x0024
+          start_handle: 0x0020
+          end_handle: 0x0027
           type: 0x2803
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
@@ -73,9 +73,9 @@
         params:
           length: 7
           data_list:
-            - {handle: 0x001e, value: "\x10\x1f\x00\x37\x2a"}
-            - {handle: 0x0021, value: "\x02\x22\x00\x38\x2a"}
-            - {handle: 0x0023, value: "\x08\x24\x00\x39\x2a"}
+            - {handle: 0x0021, value: "\x10\x22\x00\x37\x2a"}
+            - {handle: 0x0024, value: "\x02\x25\x00\x38\x2a"}
+            - {handle: 0x0026, value: "\x08\x27\x00\x39\x2a"}
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -90,8 +90,8 @@
       data: !att
         opcode: FIND_INFO_REQ
         params:
-          start_handle: 0x0020
-          end_handle: 0x0020
+          start_handle: 0x0023
+          end_handle: 0x0023
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -102,7 +102,7 @@
         params:
           format: 0x01
           data_list:
-            - {handle: 0x0020, uuid: 0x2902}
+            - {handle: 0x0023, uuid: 0x2902}
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -117,7 +117,7 @@
       data: !att
         opcode: WRITE_REQ
         params:
-          handle: 0x0020
+          handle: 0x0023
           value: [0x00, 0x00]
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
@@ -141,7 +141,7 @@
       data: !att
         opcode: WRITE_REQ
         params:
-          handle: 0x0020
+          handle: 0x0023
           value: [0x01, 0x00]
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
@@ -163,7 +163,7 @@
       data: !att
         opcode: HANDLE_NOTIFY
         params:
-          handle: 0x001f
+          handle: 0x0022
           value: [0x00, 0xff]
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
@@ -175,7 +175,7 @@
       data: !att
         opcode: READ_REQ
         params:
-          handle: 0x0022
+          handle: 0x0025
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -199,7 +199,7 @@
       data: !att
         opcode: WRITE_REQ
         params:
-          handle: 0x0024
+          handle: 0x0027
           value: [0x01]
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA

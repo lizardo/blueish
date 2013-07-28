@@ -77,6 +77,10 @@ def device_found(device_proxy):
                     assert properties["MultipleLocationsSupported"] == 0
                 get_properties(device_proxy, "org.bluez.CyclingSpeed1",
                         show_properties)
+                obj = dbus.Interface(device_proxy, "org.bluez.CyclingSpeed1")
+                obj.SetCumulativeWheelRevolutions(dbus.UInt32(0x1234),
+                        reply_handler=lambda *a: print("[CSC] SetCumulativeWheelRevolutions() successful"),
+                        error_handler=lambda e: print("[CSC] SetCumulativeWheelRevolutions() failed: %s" % e))
             if "org.bluez.HeartRate1" in ifaces:
                 class Watcher(dbus.service.Object):
                     @dbus.service.method("org.bluez.HeartRateWatcher1", in_signature="oa{sv}", out_signature="")

@@ -2,6 +2,7 @@ from __future__ import print_function
 from common import *
 from packets import *
 import dbus.service
+import glib
 
 gatt_services = set([
     "00001800-0000-1000-8000-00805f9b34fb",
@@ -19,6 +20,12 @@ gatt_services = set([
 
 watchers = {}
 
+# HID over GATT does not have a D-Bus API
+def test_hog(command):
+    with open("/tmp/hogsuspend", "w") as f:
+        print("[HOG] Running command: %s" % command)
+        f.write(command)
+
 def device_found(adapter_proxy, device_proxy):
     global watchers
     bus = dbus.SystemBus()
@@ -28,6 +35,9 @@ def device_found(adapter_proxy, device_proxy):
             if "UUIDs" in changed:
                 for uuid in changed["UUIDs"]:
                     print("UUID: %s" % uuid)
+                    if uuid == "00001812-0000-1000-8000-00805f9b34fb":
+                        glib.timeout_add_seconds(1, test_hog, "suspend")
+                        glib.timeout_add_seconds(2, test_hog, "resume")
                 assert gatt_services == set(changed["UUIDs"])
             if "Modalias" in changed:
                 print("Modalias: %s" % changed["Modalias"])
@@ -175,7 +185,6 @@ def device_found(adapter_proxy, device_proxy):
         # FIXME: because the "exists" callback is missing on the D-Bus
         # property, delay property access so the necessary characteristics
         # can be read
-        import glib
         glib.timeout_add_seconds(1, test_api)
 
     def device_connect_reply():

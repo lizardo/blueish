@@ -17,7 +17,7 @@
         params:
           length: 6
           data_list:
-            - {handle: 0x0039, end_handle: 0x003f, value: "\x12\x18"}
+            - {handle: 0x0039, end_handle: 0x0049, value: "\x12\x18"}
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -33,7 +33,7 @@
         opcode: READ_BY_TYPE_REQ
         params:
           start_handle: 0x0039
-          end_handle: 0x003f
+          end_handle: 0x0049
           type: 0x2802
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
@@ -61,7 +61,7 @@
         opcode: READ_BY_TYPE_REQ
         params:
           start_handle: 0x0039
-          end_handle: 0x003f
+          end_handle: 0x0049
           type: 0x2803
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
@@ -74,8 +74,133 @@
           length: 7
           data_list:
             - {handle: 0x003a, value: "\x02\x3b\x00\x4b\x2a"}
-            - {handle: 0x003c, value: "\x02\x3d\x00\x4a\x2a"}
-            - {handle: 0x003e, value: "\x04\x3f\x00\x4c\x2a"}
+            - {handle: 0x003d, value: "\x02\x3e\x00\x4a\x2a"}
+            - {handle: 0x003f, value: "\x04\x40\x00\x4c\x2a"}
+            - {handle: 0x0041, value: "\x12\x42\x00\x4d\x2a"}
+            - {handle: 0x0045, value: "\x06\x46\x00\x4e\x2a"}
+            - {handle: 0x0047, value: "\x0e\x48\x00\x4d\x2a"}
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_BY_TYPE_REQ
+        params:
+          start_handle: 0x0048
+          end_handle: 0x0049
+          type: 0x2803
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: ERROR_RESP
+        params:
+          request: READ_BY_TYPE_REQ
+          handle: 0x0048
+          error: ATTR_NOT_FOUND
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: FIND_INFO_REQ
+        params:
+          start_handle: 0x003c
+          end_handle: 0x003c
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+# FIXME: fix bug with external report reference
+#- packet:
+#    data:
+#      cid: LE_DATA
+#      data: !att
+#        opcode: FIND_INFO_RESP
+#        params:
+#          format: 0x01
+#          data_list:
+#            - {handle: 0x003c, uuid: 0x2907}
+#    header: {flags: START, handle: 1}
+#  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: ERROR_RESP
+        params:
+          request: FIND_INFO_RESP
+          handle: 0x003c
+          error: ATTR_NOT_FOUND
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: FIND_INFO_REQ
+        params:
+          start_handle: 0x0043
+          end_handle: 0x0044
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: FIND_INFO_RESP
+        params:
+          format: 0x01
+          data_list:
+            - {handle: 0x0043, uuid: 0x2902}
+            - {handle: 0x0044, uuid: 0x2908}
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: FIND_INFO_REQ
+        params:
+          start_handle: 0x0049
+          end_handle: 0x0049
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: FIND_INFO_RESP
+        params:
+          format: 0x01
+          data_list:
+            - {handle: 0x0049, uuid: 0x2908}
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -99,7 +224,8 @@
       data: !att
         opcode: READ_RESP
         params:
-          value: [0x05, 0x01, 0x09, 0x06, 0xa1, 0x01, 0x85, 0x01, 0x05, 0x07, 0x19, 0xe0, 0x29, 0xe7, 0x15, 0x00, 0x25, 0x01, 0x75, 0x01, 0x95, 0x08, 0x81, 0x02, 0x95, 0x01, 0x75, 0x08, 0x81, 0x03, 0x95, 0x06, 0x75, 0x08, 0x15, 0x00, 0x25, 0x65, 0x05, 0x07, 0x19, 0x00, 0x29, 0x65, 0x81, 0x00, 0xc0]
+          # From kernel source: Documentation/usb/gadget_hid.txt
+          value: [0x05, 0x01, 0x09, 0x06, 0xa1, 0x01, 0x05, 0x07, 0x19, 0xe0, 0x29, 0xe7, 0x15, 0x00, 0x25, 0x01, 0x75, 0x01, 0x95, 0x08, 0x81, 0x02, 0x95, 0x01, 0x75, 0x08, 0x81, 0x03, 0x95, 0x05, 0x75, 0x01, 0x05, 0x08, 0x19, 0x01, 0x29, 0x05, 0x91, 0x02, 0x95, 0x01, 0x75, 0x03, 0x91, 0x03, 0x95, 0x06, 0x75, 0x08, 0x15, 0x00, 0x25, 0x65, 0x05, 0x07, 0x19, 0x00, 0x29, 0x65, 0x81, 0x00, 0xc0]
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -114,7 +240,7 @@
       data: !att
         opcode: READ_REQ
         params:
-          handle: 0x003d
+          handle: 0x003e
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -131,3 +257,204 @@
     params: {count: 1, handle: 1, num_handles: 1}
   packet_indicator: EVENT
 
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_CMD
+        params:
+          handle: 0x0040
+          value: [0x00]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_CMD
+        params:
+          handle: 0x0040
+          value: [0x01]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_REQ
+        params:
+          handle: 0x0043
+          value: [0x01, 0x00]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: WRITE_RESP
+        params:
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: HANDLE_NOTIFY
+        params:
+          handle: 0x0042
+          value: [0x00, 0x00, 0x39, 0x00, 0x00, 0x00, 0x00, 0x00]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: HANDLE_NOTIFY
+        params:
+          handle: 0x0042
+          value: [0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_REQ
+        params:
+          handle: 0x0044
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_RESP
+        params:
+          value: [0x00, 0x01]
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_REQ
+        params:
+          handle: 0x0046
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_RESP
+        params:
+          value: [0x01]
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_REQ
+        params:
+          handle: 0x0049
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_RESP
+        params:
+          value: [0x00, 0x02]
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+#---
+# FIXME: fix bug with external report reference
+#- packet:
+#    data:
+#      cid: LE_DATA
+#      data: !att
+#        opcode: READ_REQ
+#        params:
+#          handle: 0x003c
+#    header: {flags: START_NO_FLUSH, handle: 1}
+#  packet_indicator: ACLDATA
+#- packet:
+#    data:
+#      cid: LE_DATA
+#      data: !att
+#        opcode: READ_RESP
+#        params:
+#          value: [0x34, 0x12]
+#    header: {flags: START, handle: 1}
+#  packet_indicator: ACLDATA
+#- packet:
+#    evt: NUM_COMP_PKTS
+#    params: {count: 1, handle: 1, num_handles: 1}
+#  packet_indicator: EVENT
+#
+#---
+#- packet:
+#    data:
+#      cid: LE_DATA
+#      data: !att
+#        opcode: READ_BY_TYPE_REQ
+#        params:
+#          start_handle: 0x0000
+#          end_handle: 0x00ff
+#          type: 0x2803
+#    header: {flags: START_NO_FLUSH, handle: 1}
+#  packet_indicator: ACLDATA
+#- packet:
+#    data:
+#      cid: LE_DATA
+#      data: !att
+#        opcode: READ_BY_TYPE_RESP
+#        params:
+#          length: 7
+#          data_list:
+#            - {handle: 0x0000, value: "\x00\x00\x00\x00\x00"}
+#    header: {flags: START, handle: 1}
+#  packet_indicator: ACLDATA
+#- packet:
+#    evt: NUM_COMP_PKTS
+#    params: {count: 1, handle: 1, num_handles: 1}
+#  packet_indicator: EVENT
+#

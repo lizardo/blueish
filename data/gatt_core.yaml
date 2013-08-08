@@ -27,35 +27,6 @@
   packet_indicator: EVENT
 
 ---
-# NOTE: remember to update start handle if other GATT profiles are added.
-- packet:
-    data:
-      cid: LE_DATA
-      data: !att
-        opcode: READ_BY_GROUP_REQ
-        params:
-          start_handle: &handle 0x004d
-          end_handle: 0xffff
-          group_type: 0x2800
-    header: {flags: START_NO_FLUSH, handle: 1}
-  packet_indicator: ACLDATA
-- packet:
-    data:
-      cid: LE_DATA
-      data: !att
-        opcode: ERROR_RESP
-        params:
-          request: READ_BY_GROUP_REQ
-          handle: *handle
-          error: ATTR_NOT_FOUND
-    header: {flags: START, handle: 1}
-  packet_indicator: ACLDATA
-- packet:
-    evt: NUM_COMP_PKTS
-    params: {count: 1, handle: 1, num_handles: 1}
-  packet_indicator: EVENT
-
----
 - packet:
     data:
       cid: LE_DATA

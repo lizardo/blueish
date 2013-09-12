@@ -110,6 +110,11 @@ class Dispatcher(object):
             # HCI ACL Data packet
             plen = struct.unpack_from("<H", buf, 3)[0]
             hdr_len = 5
+        elif transport == 0xff:
+            # HCI Vendor packet (currently used to set device type)
+            # Assume device type to be HCI_BREDR and index 0
+            assert buf == "\xff\x00\x00\x00"
+            return True
         else:
             print("Unsupported transport: %#x" % transport)
             sys.exit(1)

@@ -335,6 +335,32 @@
 
 ---
 - packet:
+    opcode: {ocf: READ_NUM_SUPPORTED_IAC, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_NUM_SUPPORTED_IAC, ogf: HOST_CTL}
+      rparams: {status: 0, num_iac: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    opcode: {ocf: READ_CURRENT_IAC_LAP, ogf: HOST_CTL}
+    params: null
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_COMPLETE
+    params:
+      ncmd: 1
+      opcode: {ocf: READ_CURRENT_IAC_LAP, ogf: HOST_CTL}
+      rparams: {status: 0, num_iac: 1, iac_lap: [0x00, 0x8b, 0x9e]}
+  packet_indicator: EVENT
+
+---
+- packet:
     opcode: {ocf: WRITE_INQUIRY_MODE, ogf: HOST_CTL}
     params: {mode: 2}
   packet_indicator: COMMAND

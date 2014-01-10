@@ -41,6 +41,10 @@ class StatefulPacket(object):
             # < HCI Command: LE Set Advertising Data (0x08|0x0008) plen 32
             # NOTE: Ignore Adv. data for now
             return "040E0401082000"
+        elif packet.startswith("010920"):
+            # < HCI Command: LE Set Scan Response Data (0x08|0x0009) plen 32
+            # NOTE: Ignore Scan response data for now
+            return "040E0401092000"
         elif packet == "01230C00":
             # < HCI Command: Read Class of Device (0x03|0x0023) plen 0
             return "040E0701230C00" + self.cod

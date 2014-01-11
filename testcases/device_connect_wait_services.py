@@ -47,9 +47,9 @@ def device_found(adapter_proxy, device_proxy):
                 assert changed["Modalias"] == "bluetooth:v0002p0003d0004"
         elif interface == "org.bluez.ProximityMonitor1":
             if "ImmediateAlertLevel" in changed:
-                print("ImmediateAlertLevel: %s" % changed["ImmediateAlertLevel"])
+                print("[IAS] ImmediateAlertLevel: %s" % changed["ImmediateAlertLevel"])
             if "LinkLossAlertLevel" in changed:
-                print("LinkLossAlertLevel: %s" % changed["LinkLossAlertLevel"])
+                print("[LLS] LinkLossAlertLevel: %s" % changed["LinkLossAlertLevel"])
         elif interface == "org.bluez.CyclingSpeed1":
             if "Location" in changed:
                 print("[CSC] Location: %s" % changed["Location"])
@@ -83,10 +83,10 @@ def device_found(adapter_proxy, device_proxy):
             if "org.bluez.ProximityMonitor1" in ifaces:
                 set_property(device_proxy, "org.bluez.ProximityMonitor1",
                         "ImmediateAlertLevel", "mild",
-                        lambda: print("IAS Alert Level set to mild"))
+                        lambda: print("[IAS] Alert Level set to mild"))
                 set_property(device_proxy, "org.bluez.ProximityMonitor1",
                         "LinkLossAlertLevel", "mild",
-                        lambda: print("LLS Alert Level set to mild"))
+                        lambda: print("[LLS] Alert Level set to mild"))
             if "org.bluez.CyclingSpeed1" in ifaces:
                 class CscWatcher(dbus.service.Object):
                     @dbus.service.method("org.bluez.CyclingSpeedWatcher1", in_signature="oa{sv}", out_signature="")

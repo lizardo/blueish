@@ -5,6 +5,9 @@ from packets import *
 import dbus.service
 import glib
 
+# Timeout for terminating bluetoothd with CTRL+C
+TIMEOUT = 10
+
 gatt_services = set([
     "00001800-0000-1000-8000-00805f9b34fb",
     "00001801-0000-1000-8000-00805f9b34fb",
@@ -209,5 +212,20 @@ def device_found(adapter_proxy, device_proxy):
     dev.Connect(reply_handler=device_connect_reply,
             error_handler=device_connect_error)
 
+def run_daemon():
+    global bluetoothd, log_file
+
+    print("INFO: bluetoothd will be terminated in %s seconds" % TIMEOUT)
+    log_file = open("/tmp/bluetoothd.log", "w")
+    bluetoothd = run_bluetoothd("/opt/bluez", "/opt/bluez/var", True, log_file)
+
+def kill_daemon():
+    bluetoothd.terminate()
+
+glib.idle_add(run_daemon)
+glib.timeout_add_seconds(TIMEOUT, kill_daemon)
 device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
 mainloop_run(packets)
+
+bluetoothd.wait()
+log_file.close()

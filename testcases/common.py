@@ -89,9 +89,20 @@ def device_add_watch(bd_addr, callback):
             adapter.StopDiscovery()
             callback(adapter.proxy_object, bus.get_object("org.bluez", path))
 
-    object_manager = dbus.Interface(bus.get_object("org.bluez", "/"),
-            "org.freedesktop.DBus.ObjectManager")
-    object_manager.connect_to_signal("InterfacesAdded", interfaces_added)
+    def owner_changed(name, old, new):
+        if name != "org.bluez":
+            return
+        if new == "":
+            print("INFO: bluetoothd was terminated")
+            mainloop.quit()
+            return
+        object_manager = dbus.Interface(bus.get_object("org.bluez", "/"),
+                "org.freedesktop.DBus.ObjectManager")
+        object_manager.connect_to_signal("InterfacesAdded", interfaces_added)
+
+    dbus_manager = dbus.Interface(bus.get_object("org.freedesktop.DBus",
+            "/org/freedesktop/DBus"), "org.freedesktop.DBus")
+    dbus_manager.connect_to_signal("NameOwnerChanged", owner_changed)
 
 class Dispatcher(object):
     def __init__(self, packets, stateful):
@@ -121,7 +132,7 @@ class Dispatcher(object):
             return True
         else:
             print("Unsupported transport: %#x" % transport)
-            sys.exit(1)
+            mainloop.quit()
             return False
 
         # check if buffer contains all data
@@ -138,7 +149,7 @@ class Dispatcher(object):
                 os.write(fd, p.decode("hex"))
             else:
                 print("Unsupported packet: %s" % buf)
-                sys.exit(1)
+                mainloop.quit()
                 return False
 
         return True
@@ -173,16 +184,49 @@ class RFKill(object):
         elif self.idx is not None and self.idx == idx and op in (2, 3) and \
                 type_ == 2 and soft == 1:
             print("ERROR: Emulated Bluetooth adapter was blocked using RF-kill")
-            sys.exit(1)
+            mainloop.quit()
 
         return True
 
 def mainloop_run(packets):
+    global mainloop
+
     stateful = StatefulPacket()
     rfkill = RFKill()
     dispatcher = Dispatcher(packets, stateful)
-    loop = GObject.MainLoop()
+    mainloop = GObject.MainLoop()
     try:
-        loop.run()
+        mainloop.run()
     except KeyboardInterrupt:
         print("\nExiting...")
+
+def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
+        log_file=None):
+    import subprocess
+    import shutil
+    import os
+
+    if clear_storage:
+        shutil.rmtree(var + "/lib/bluetooth")
+        os.makedirs(var + "/lib/bluetooth", mode=0755)
+
+    if log_file:
+        stderr = subprocess.STDOUT
+        stdout = log_file
+    else:
+        stderr = stdout = None
+
+    open("/tmp/bluetoothd.sup", "w").write("\n".join([
+            "{",
+            "libc-exit",
+            "Memcheck:Free",
+            "fun:free",
+            "fun:__libc_freeres",
+            "fun:_Exit",
+            "}"]))
+
+    return subprocess.Popen(["/usr/bin/env", "G_SLICE=always-malloc",
+            "valgrind", "--track-fds=yes", "--leak-check=full",
+            "--suppressions=/tmp/bluetoothd.sup",
+            prefix + "/libexec/bluetooth/bluetoothd", "-n", "-d"],
+            stderr=stderr, stdout=stdout)

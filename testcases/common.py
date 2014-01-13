@@ -19,7 +19,7 @@ import sys
 import dbus
 import dbus.mainloop.glib
 import struct
-from gi.repository import GLib, GObject
+from gi.repository import GLib, GObject, Gio
 
 class StatefulPacket(object):
     """These packets use data that is either derived from the OS, or from
@@ -229,3 +229,10 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
             "--suppressions=/tmp/bluetoothd.sup",
             prefix + "/libexec/bluetooth/bluetoothd", "-n", "-d"],
             stderr=stderr, stdout=stdout)
+
+def fake_dbus():
+    test_dbus = Gio.TestDBus.new(Gio.TestDBusFlags.NONE)
+    test_dbus.up()
+    os.environ['DBUS_SYSTEM_BUS_ADDRESS'] = test_dbus.get_bus_address()
+
+    return test_dbus

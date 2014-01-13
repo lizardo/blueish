@@ -222,10 +222,14 @@ def run_daemon():
 def kill_daemon():
     bluetoothd.terminate()
 
+test_dbus = fake_dbus()
+
 GLib.idle_add(run_daemon)
 GLib.timeout_add_seconds(TIMEOUT, kill_daemon)
 device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
+
 mainloop_run(packets)
 
 bluetoothd.wait()
 log_file.close()
+test_dbus.down()

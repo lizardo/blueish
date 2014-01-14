@@ -1,2 +1,4 @@
 *.pyc
 testcases/packets.py
+valgrind/bt-kernel.so
+tags

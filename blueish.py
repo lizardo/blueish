@@ -19,6 +19,7 @@ import sys
 import argparse
 import yaml
 from construct import Container, ListContainer
+from bt_lib import mgmt
 from bt_lib.hci.transport import uart
 from bt_lib.sdp import sdp
 from bt_lib.att import att
@@ -40,14 +41,27 @@ if __name__ == "__main__":
 
     print("Generating testcases/packets.py...")
 
+    packets = {"uart": {}, "mgmt": {}}
+    for data in args.datafile:
+        for doc in yaml.load_all(data):
+            if doc is None:
+                print("Ignoring empty document!", file=sys.stderr)
+                continue
+            if doc[0].get("packet_indicator") is not None:
+                p = map(lambda c: uart.build(c), doc)
+                packets["uart"][p[0]] = p[1:]
+            else:
+                # Assume first entry as command for mgmt datafiles, as it is
+                # expected that BlueZ only send commands to kernel
+                cmd = mgmt.command.build(doc[0])
+                evts = map(lambda c: mgmt.event.build(c), doc[1:])
+                packets["mgmt"][cmd] = evts
+
     with open("testcases/packets.py", "w") as modfile:
-        print("packets = {}", file=modfile)
-        for data in args.datafile:
-            print("\npackets.update({", file=modfile)
-            for doc in yaml.load_all(data):
-                if doc is None:
-                    print("Ignoring empty document!", file=sys.stderr)
-                    continue
-                p = map(lambda c: uart.build(c).encode("hex").upper(), doc)
-                print("    '%s': %s," % (p[0], p[1:]), file=modfile)
-            print("})", file=modfile)
+        for pkt_type in ["uart", "mgmt"]:
+            print("%s = {" % pkt_type, file=modfile)
+            for (k, v) in packets[pkt_type].iteritems():
+                k = k.encode("hex").upper()
+                v = map(lambda p: p.encode("hex").upper(), v)
+                print("    '%s': %s," % (k, v), file=modfile)
+            print("}", file=modfile)

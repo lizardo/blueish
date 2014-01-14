@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from __future__ import print_function
 from common import *
-from packets import *
 import dbus.service
 from gi.repository import GLib
 
@@ -212,23 +211,26 @@ def device_found(adapter_proxy, device_proxy):
     dev.Connect(reply_handler=device_connect_reply,
             error_handler=device_connect_error)
 
-def run_daemon():
+def run_daemon(kernel_emulator):
     global bluetoothd, log_file
 
     print("INFO: bluetoothd will be terminated in %s seconds" % TIMEOUT)
     log_file = open("/tmp/bluetoothd.log", "w")
-    bluetoothd = run_bluetoothd("/opt/bluez", "/opt/bluez/var", True, log_file)
+    bluetoothd = run_bluetoothd("/opt/bluez", "/opt/bluez/var", True, log_file,
+            kernel_emulator)
 
 def kill_daemon():
     bluetoothd.terminate()
 
 test_dbus = fake_dbus()
 
-GLib.idle_add(run_daemon)
+kernel_emulator = True
+
+GLib.idle_add(run_daemon, kernel_emulator)
 GLib.timeout_add_seconds(TIMEOUT, kill_daemon)
 device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
 
-mainloop_run(packets)
+mainloop_run(kernel_emulator)
 
 bluetoothd.wait()
 log_file.close()

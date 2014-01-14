@@ -17,17 +17,26 @@
 from __future__ import print_function
 import sys
 import yaml
-from bt_lib.hci.transport import uart
 from construct import Container, ListContainer
 
+from bt_lib import mgmt
+from bt_lib.hci import transport
+
+def usage():
+    print("Usage: %s <module.entry> <packet-in-hex> [<packet-in-hex> ...]" % sys.argv[0])
+    sys.exit(1)
+
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        print("Usage: %s <packet-in-hex> [<packet-in-hex> ...]")
-        sys.exit(1)
+    if len(sys.argv) < 3:
+        usage()
+
+    entry = sys.argv[1]
+    packets = sys.argv[2:]
 
     yaml.add_representer(ListContainer,
         lambda dumper, data: dumper.represent_sequence('tag:yaml.org,2002:seq', data))
     yaml.add_representer(Container,
         lambda dumper, data: dumper.represent_mapping('tag:yaml.org,2002:map', data))
-    data = map(lambda d: uart.parse(d.decode("hex")), sys.argv[1:])
+    parse = eval("%s.parse" % entry)
+    data = map(lambda d: parse(d.decode("hex")), packets)
     print(yaml.dump(data))

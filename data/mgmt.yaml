@@ -1,0 +1,262 @@
+- opcode: READ_VERSION
+  index: 0xffff
+  params: null
+- opcode: CMD_COMPLETE
+  index: 0xffff
+  params:
+    opcode: READ_VERSION
+    rparams: {version: 1, revision: 4}
+    status: 0
+
+---
+- opcode: READ_COMMANDS
+  index: 0xffff
+  params: null
+- opcode: CMD_COMPLETE
+  index: 0xffff
+  params:
+    opcode: READ_COMMANDS
+    rparams:
+      cmd_opcodes: [READ_INDEX_LIST, READ_INFO, SET_POWERED, SET_DISCOVERABLE, SET_CONNECTABLE,
+        SET_FAST_CONNECTABLE, SET_PAIRABLE, SET_LINK_SECURITY, SET_SSP, SET_HS, SET_LE,
+        SET_DEV_CLASS, SET_LOCAL_NAME, ADD_UUID, REMOVE_UUID, LOAD_LINK_KEYS, LOAD_LONG_TERM_KEYS,
+        DISCONNECT, GET_CONNECTIONS, PIN_CODE_REPLY, PIN_CODE_NEG_REPLY, SET_IO_CAPABILITY,
+        PAIR_DEVICE, CANCEL_PAIR_DEVICE, UNPAIR_DEVICE, USER_CONFIRM_REPLY, USER_CONFIRM_NEG_REPLY,
+        USER_PASSKEY_REPLY, USER_PASSKEY_NEG_REPLY, READ_LOCAL_OOB_DATA, ADD_REMOTE_OOB_DATA,
+        REMOVE_REMOTE_OOB_DATA, START_DISCOVERY, STOP_DISCOVERY, CONFIRM_NAME, BLOCK_DEVICE,
+        UNBLOCK_DEVICE, SET_DEVICE_ID, SET_ADVERTISING, SET_BREDR, SET_STATIC_ADDRESS,
+        SET_SCAN_PARAMS, SET_SECURE_CONN]
+      evt_opcodes: [CONTROLLER_ERROR, INDEX_ADDED, INDEX_REMOVED, NEW_SETTINGS, CLASS_OF_DEV_CHANGED,
+        LOCAL_NAME_CHANGED, NEW_LINK_KEY, NEW_LONG_TERM_KEY, DEVICE_CONNECTED, DEVICE_DISCONNECTED,
+        CONNECT_FAILED, PIN_CODE_REQUEST, USER_CONFIRM_REQUEST, USER_PASSKEY_REQUEST,
+        AUTH_FAILED, DEVICE_FOUND, DISCOVERING, DEVICE_BLOCKED, DEVICE_UNBLOCKED,
+        DEVICE_UNPAIRED, PASSKEY_NOTIFY]
+      num_commands: 43
+      num_events: 21
+    status: 0
+
+---
+- opcode: READ_INDEX_LIST
+  index: 0xffff
+  params: null
+- opcode: CMD_COMPLETE
+  index: 0xffff
+  params:
+    opcode: READ_INDEX_LIST
+    rparams:
+      num_controllers: 1
+      index: [0]
+    status: 0
+
+---
+- opcode: READ_INFO
+  index: 0x0000
+  params: null
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: READ_INFO
+    rparams:
+      bdaddr: [175, 240, 175, 240, 175, 240]
+      version: 6
+      manufacturer: 0x003f
+      supported_settings: 0x00000fff
+      current_settings: 0x00000000
+      dev_class: [0, 0, 0]
+      name: ""
+      short_name: ""
+    status: 0
+
+---
+- opcode: REMOVE_UUID
+  index: 0x0000
+  params:
+    uuid: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: REMOVE_UUID
+    rparams:
+      dev_class: [0, 0, 0]
+    status: 0
+
+---
+- opcode: UNBLOCK_DEVICE
+  index: 0x0000
+  params:
+    addr:
+      bdaddr: [0, 0, 0, 0, 0, 0]
+      type: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: UNBLOCK_DEVICE
+    rparams:
+      addr:
+        bdaddr: [0, 0, 0, 0, 0, 0]
+        type: 0
+    status: 0
+
+---
+- opcode: LOAD_LINK_KEYS
+  index: 0x0000
+  params:
+    debug_keys: 0
+    key_count: 0
+    link_keys: []
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: LOAD_LINK_KEYS
+    rparams: null
+    status: 0
+
+---
+- opcode: LOAD_LONG_TERM_KEYS
+  index: 0x0000
+  params:
+    key_count: 0
+    ltk_keys: []
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: LOAD_LONG_TERM_KEYS
+    rparams: null
+    status: 0
+
+---
+- opcode: ADD_UUID
+  index: 0x0000
+  params:
+    uuid: [251, 52, 155, 95, 128, 0, 0, 128, 0, 16, 0, 0, 0, 18, 0, 0]
+    svc_hint: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: ADD_UUID
+    rparams:
+      dev_class: [0, 0, 0]
+    status: 0
+
+---
+- opcode: SET_DEVICE_ID
+  index: 0x0000
+  params:
+    source: 2
+    vendor: 7531
+    product: 582
+    version: 1293
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_DEVICE_ID
+    rparams: null
+    status: 0
+
+---
+- opcode: SET_DEV_CLASS
+  index: 0x0000
+  params: {major: 0, minor: 0}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_DEV_CLASS
+    rparams:
+      dev_class: [0, 0, 0]
+    status: 0
+
+---
+- opcode: SET_LOCAL_NAME
+  index: 0x0000
+  params: {name: "BlueZ 5.13", short_name: ""}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_LOCAL_NAME
+    rparams: {name: "BlueZ 5.13", short_name: ""}
+    status: 0
+
+---
+- opcode: SET_SSP
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_SSP
+    rparams:
+      current_settings: 0x00000040
+    status: 0
+
+---
+- opcode: SET_LE
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_LE
+    rparams:
+      current_settings: 0x00000240
+    status: 0
+
+---
+- opcode: SET_PAIRABLE
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_PAIRABLE
+    rparams:
+      current_settings: 0x00000250
+    status: 0
+
+---
+- opcode: SET_CONNECTABLE
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_CONNECTABLE
+    rparams:
+      current_settings: 0x00000252
+    status: 0
+
+---
+- opcode: SET_POWERED
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_POWERED
+    rparams:
+      current_settings: 0x00000253
+    status: 0
+
+---
+- opcode: START_DISCOVERY
+  index: 0x0000
+  params: {type: 6}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: START_DISCOVERY
+    rparams:
+      type: 6
+    status: 0
+
+---
+- opcode: SET_POWERED
+  index: 0x0000
+  params: {enable: 0}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_POWERED
+    rparams:
+      current_settings: 0x00000253
+    status: 0
+

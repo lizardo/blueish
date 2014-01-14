@@ -1,6 +1,7 @@
 from __future__ import print_function
-from common import *
-from packets import *
+import sys
+import dbus
+from common import device_add_watch, mainloop_run
 
 def device_found(adapter_proxy, device_proxy):
     def device_connect_reply():
@@ -16,4 +17,4 @@ def device_found(adapter_proxy, device_proxy):
             error_handler=device_connect_error)
 
 device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
-mainloop_run(packets)
+mainloop_run()

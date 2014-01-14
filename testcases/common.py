@@ -19,7 +19,9 @@ import sys
 import dbus
 import dbus.mainloop.glib
 import struct
+import socket
 from gi.repository import GLib, GObject, Gio
+import packets
 
 class StatefulPacket(object):
     """These packets use data that is either derived from the OS, or from
@@ -100,18 +102,108 @@ def device_add_watch(bd_addr, callback):
                 "org.freedesktop.DBus.ObjectManager")
         object_manager.connect_to_signal("InterfacesAdded", interfaces_added)
 
+    print("INFO: Waiting for org.bluez service...")
     dbus_manager = dbus.Interface(bus.get_object("org.freedesktop.DBus",
             "/org/freedesktop/DBus"), "org.freedesktop.DBus")
     dbus_manager.connect_to_signal("NameOwnerChanged", owner_changed)
 
+def io_add_watch(fd, cond, *args):
+    return GLib.io_add_watch(fd, cond | GLib.IO_HUP | GLib.IO_ERR |
+            GLib.IO_NVAL, *args)
+
 class Dispatcher(object):
-    def __init__(self, packets, stateful):
-        self.fd = os.open("/dev/vhci", os.O_RDWR | os.O_NONBLOCK)
-        GLib.io_add_watch(self.fd, GLib.IO_IN, Dispatcher.read_data, packets,
-                stateful)
+    def __init__(self, kernel_emulator):
+        stateful = StatefulPacket()
+        if kernel_emulator:
+            self.registered_sockets = {}
+            sock = socket.socket(socket.AF_UNIX, socket.SOCK_SEQPACKET)
+            sock.setblocking(0)
+            sock.bind("\0/bt_emulator")
+            sock.listen(5)
+
+            def accept_conn(fd, cb_condition):
+                assert cb_condition == GLib.IO_IN
+                conn_fd = sock.accept()[0]
+                print("INFO: New connection (fd=%d)" % conn_fd.fileno())
+                io_add_watch(conn_fd.fileno(), GLib.IO_IN,
+                        Dispatcher.read_sock_data, stateful, conn_fd,
+                        self.registered_sockets)
+                return True
+
+            io_add_watch(sock.fileno(), GLib.IO_IN, accept_conn)
+        else:
+            fd = os.open("/dev/vhci", os.O_RDWR | os.O_NONBLOCK)
+            io_add_watch(fd, GLib.IO_IN, Dispatcher.read_data, stateful)
 
     @staticmethod
-    def read_data(fd, cb_condition, packets, stateful):
+    def read_sock_data(fd, cb_condition, stateful, sock, registered_sockets):
+        assert cb_condition == GLib.IO_IN
+
+        buf = sock.recv(4096)
+        ofs = 0
+
+        if registered_sockets.get(fd) is None:
+            proto, = struct.unpack_from("i", buf, ofs)
+            ofs += struct.calcsize("i")
+            print("INFO: Registering new socket: sk=%d, proto=%d" % (fd, proto))
+            registered_sockets[fd] = {"proto": proto}
+            if proto == 0:
+                # L2CAP socket
+                family, psm, bdaddr, cid, bdaddr_type = \
+                        struct.unpack_from("HH6sHBx", buf, ofs)
+                ofs += struct.calcsize("HH6sHBx")
+                print(("INFO: Registering L2CAP socket: family=%d, psm=%d, " +
+                        "bdaddr=%s, cid=%d, bdaddr_type=%d") %
+                        (family, psm, repr(bdaddr), cid, bdaddr_type))
+                registered_sockets[fd]["family"] = family
+                registered_sockets[fd]["psm"] = psm
+                registered_sockets[fd]["bdaddr"] = bdaddr
+                registered_sockets[fd]["cid"] = cid
+                registered_sockets[fd]["bdaddr_type"] = bdaddr_type
+            elif proto == 1:
+                # HCI socket
+                family, dev, channel = struct.unpack_from("HHH", buf, ofs)
+                ofs += struct.calcsize("HHH")
+                print(("INFO: Registering HCI socket: family=%d, dev=%d, " +
+                        "channel=%d") % (family, dev, channel))
+                registered_sockets[fd]["family"] = family
+                registered_sockets[fd]["dev"] = dev
+                registered_sockets[fd]["channel"] = channel
+            else:
+                print("ERROR: Unsupported protocol %d (fd=%d)" %
+                        (registered_sockets[fd]["proto"], fd))
+                mainloop.quit()
+                return False
+
+            assert not buf[ofs:]
+            return True
+
+        if registered_sockets[fd]["proto"] == 1 and \
+                registered_sockets[fd]["channel"] == 3:
+            # mgmt socket
+            hdr_len = struct.calcsize("<HHH")
+            plen = struct.unpack_from("<HHH", buf, 0)[2]
+            assert len(buf) == hdr_len + plen
+            buf = buf.encode("hex").upper()
+
+            if packets.mgmt.get(buf) is not None:
+                for p in packets.mgmt[buf]:
+                    l = sock.send(p.decode("hex"))
+                    assert l == len(p.decode("hex"))
+            else:
+                print("ERROR: Unsupported mgmt packet: %s" % buf)
+                mainloop.quit()
+                return False
+        else:
+            print("ERROR: Unsupported protocol %d (fd=%d)" %
+                    (registered_sockets[fd]["proto"], fd))
+            mainloop.quit()
+            return False
+
+        return True
+
+    @staticmethod
+    def read_data(fd, cb_condition, stateful):
         assert cb_condition == GLib.IO_IN
 
         buf = os.read(fd, 4096)
@@ -131,24 +223,26 @@ class Dispatcher(object):
             assert buf == "\xff\x00\x00\x00"
             return True
         else:
-            print("Unsupported transport: %#x" % transport)
+            print("ERROR: Unsupported transport: %#x" % transport)
             mainloop.quit()
             return False
 
         # check if buffer contains all data
-        assert len(buf) >= plen + hdr_len
+        assert len(buf) == plen + hdr_len
 
         buf = buf.encode("hex").upper()
 
-        if packets.get(buf) is not None:
-            for p in packets[buf]:
-                os.write(fd, p.decode("hex"))
+        if packets.uart.get(buf) is not None:
+            for p in packets.uart[buf]:
+                l = os.write(fd, p.decode("hex"))
+                assert l == len(p.decode("hex"))
         else:
             p = stateful.process(buf)
             if p:
-                os.write(fd, p.decode("hex"))
+                l = os.write(fd, p.decode("hex"))
+                assert l == len(p.decode("hex"))
             else:
-                print("Unsupported packet: %s" % buf)
+                print("ERROR: Unsupported packet: %s" % buf)
                 mainloop.quit()
                 return False
 
@@ -188,12 +282,12 @@ class RFKill(object):
 
         return True
 
-def mainloop_run(packets):
+def mainloop_run(kernel_emulator=False):
     global mainloop
 
-    stateful = StatefulPacket()
-    rfkill = RFKill()
-    dispatcher = Dispatcher(packets, stateful)
+    if not kernel_emulator:
+        rfkill = RFKill()
+    dispatcher = Dispatcher(kernel_emulator)
     mainloop = GObject.MainLoop()
     try:
         mainloop.run()
@@ -201,12 +295,13 @@ def mainloop_run(packets):
         print("\nExiting...")
 
 def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
-        log_file=None):
+        log_file=None, kernel_emulator=False):
     import subprocess
     import shutil
 
     if clear_storage:
-        shutil.rmtree(var + "/lib/bluetooth")
+        print("INFO: Cleaning storage")
+        shutil.rmtree(var + "/lib/bluetooth", ignore_errors=True)
         os.makedirs(var + "/lib/bluetooth", mode=0755)
 
     if log_file:
@@ -224,15 +319,25 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
             "fun:_Exit",
             "}"]))
 
-    return subprocess.Popen(["/usr/bin/env", "G_SLICE=always-malloc",
-            "valgrind", "--track-fds=yes", "--leak-check=full",
+    env = {
+        "G_SLICE": "always-malloc",
+        "DBUS_SYSTEM_BUS_ADDRESS": os.environ["DBUS_SYSTEM_BUS_ADDRESS"],
+    }
+
+    if kernel_emulator:
+        basedir = os.path.dirname(sys.argv[0])
+        env["LD_PRELOAD"] = basedir + "/../valgrind/bt-kernel.so"
+
+    return subprocess.Popen(["valgrind", "--track-fds=yes", "--leak-check=full",
             "--suppressions=/tmp/bluetoothd.sup",
+    #return subprocess.Popen(["/usr/bin/strace", "-x", "-v", "-ff", "-s", "200",
+    #"/usr/bin/strace", "-x", "-v", "-ff", "-s", "200", "-o", "/tmp/strace.log",
             prefix + "/libexec/bluetooth/bluetoothd", "-n", "-d"],
-            stderr=stderr, stdout=stdout)
+            stderr=stderr, stdout=stdout, env=env, close_fds=True)
 
 def fake_dbus():
     test_dbus = Gio.TestDBus.new(Gio.TestDBusFlags.NONE)
     test_dbus.up()
-    os.environ['DBUS_SYSTEM_BUS_ADDRESS'] = test_dbus.get_bus_address()
+    os.environ["DBUS_SYSTEM_BUS_ADDRESS"] = test_dbus.get_bus_address()
 
     return test_dbus

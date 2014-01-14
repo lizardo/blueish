@@ -204,7 +204,6 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
         log_file=None):
     import subprocess
     import shutil
-    import os
 
     if clear_storage:
         shutil.rmtree(var + "/lib/bluetooth")

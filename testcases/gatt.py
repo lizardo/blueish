@@ -3,7 +3,7 @@ from __future__ import print_function
 from common import *
 from packets import *
 import dbus.service
-import glib
+from gi.repository import GLib
 
 # Timeout for terminating bluetoothd with CTRL+C
 TIMEOUT = 10
@@ -43,8 +43,8 @@ def device_found(adapter_proxy, device_proxy):
                 for uuid in changed["UUIDs"]:
                     print("UUID: %s" % uuid)
                     if uuid == "00001812-0000-1000-8000-00805f9b34fb":
-                        glib.timeout_add_seconds(1, test_hog, "suspend")
-                        glib.timeout_add_seconds(2, test_hog, "resume")
+                        GLib.timeout_add_seconds(1, test_hog, "suspend")
+                        GLib.timeout_add_seconds(2, test_hog, "resume")
                 assert gatt_services == set(changed["UUIDs"])
             if "Modalias" in changed:
                 print("Modalias: %s" % changed["Modalias"])
@@ -111,7 +111,7 @@ def device_found(adapter_proxy, device_proxy):
                     assert properties["MultipleLocationsSupported"] == 1
                     assert properties["Location"] == "other"
                     assert set(properties["SupportedLocations"]) == set(["other", "hip"])
-                    glib.timeout_add_seconds(1, set_property, device_proxy,
+                    GLib.timeout_add_seconds(1, set_property, device_proxy,
                             "org.bluez.CyclingSpeed1", "Location", "hip",
                             lambda: print("[CSC] Location set to hip"))
 
@@ -192,7 +192,7 @@ def device_found(adapter_proxy, device_proxy):
         # FIXME: because the "exists" callback is missing on the D-Bus
         # property, delay property access so the necessary characteristics
         # can be read
-        glib.timeout_add_seconds(1, test_api)
+        GLib.timeout_add_seconds(1, test_api)
 
     def device_connect_reply():
         print("device connected")
@@ -222,8 +222,8 @@ def run_daemon():
 def kill_daemon():
     bluetoothd.terminate()
 
-glib.idle_add(run_daemon)
-glib.timeout_add_seconds(TIMEOUT, kill_daemon)
+GLib.idle_add(run_daemon)
+GLib.timeout_add_seconds(TIMEOUT, kill_daemon)
 device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
 mainloop_run(packets)
 

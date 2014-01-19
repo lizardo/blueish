@@ -71,7 +71,7 @@
 - opcode: REMOVE_UUID
   index: 0x0000
   params:
-    uuid: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    uuid: 00000000-0000-0000-0000-000000000000
 - opcode: CMD_COMPLETE
   index: 0x0000
   params:
@@ -128,7 +128,7 @@
 - opcode: ADD_UUID
   index: 0x0000
   params:
-    uuid: [251, 52, 155, 95, 128, 0, 0, 128, 0, 16, 0, 0, 0, 18, 0, 0]
+    uuid: 00001200-0000-1000-8000-00805f9b34fb
     svc_hint: 0
 - opcode: CMD_COMPLETE
   index: 0x0000

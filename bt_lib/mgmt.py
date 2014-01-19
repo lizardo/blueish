@@ -187,7 +187,7 @@ mgmt_rp_set_local_name = Struct("mgmt_rp_set_local_name",
 )
 
 mgmt_cp_add_uuid = Struct("mgmt_cp_add_uuid",
-    Array(16, ULInt8("uuid")),
+    BtUuidAdapter(Array(16, ULInt8("uuid"))),
     ULInt8("svc_hint"),
 )
 
@@ -196,7 +196,7 @@ mgmt_rp_add_uuid = Struct("mgmt_rp_add_uuid",
 )
 
 mgmt_cp_remove_uuid = Struct("mgmt_cp_remove_uuid",
-    Array(16, ULInt8("uuid")),
+    BtUuidAdapter(Array(16, ULInt8("uuid"))),
 )
 
 mgmt_rp_remove_uuid = Struct("mgmt_rp_remove_uuid",

@@ -81,24 +81,6 @@ mtu_resp = Struct("mtu_resp",
     ULInt16("server_mtu")
 )
 
-class BtUuidAdapter(Adapter):
-    def _encode(self, obj, context):
-        if isinstance(obj, int):
-            return [ord(c) for c in ULInt16("uuid16").build(obj)]
-        else:
-            import uuid
-            return [ord(c) for c in reversed(uuid.UUID(obj).bytes)]
-
-    def _decode(self, obj, context):
-        if len(obj) == 2:
-            return "0x%04x" % ULInt16("uuid16").parse("".join(chr(c) for c in obj))
-        else:
-            import uuid
-            return str(uuid.UUID(bytes="".join(chr(c) for c in reversed(obj))))
-
-def BT_UUID(name):
-    return BtUuidAdapter(GreedyRange(ULInt8(name)))
-
 find_info_req = Struct("find_info_req",
     ULInt16("start_handle"),
     ULInt16("end_handle"),

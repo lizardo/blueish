@@ -281,3 +281,59 @@
       type: 6
     status: 0
 
+---
+- opcode: ADD_UUID
+  index: 0x0000
+  params:
+    uuid: 00001800-0000-1000-8000-00805f9b34fb
+    svc_hint: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: ADD_UUID
+    rparams:
+      dev_class: [0, 0, 0]
+    status: 0
+
+---
+- opcode: ADD_UUID
+  index: 0x0000
+  params:
+    uuid: 00001801-0000-1000-8000-00805f9b34fb
+    svc_hint: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: ADD_UUID
+    rparams:
+      dev_class: [0, 0, 0]
+    status: 0
+
+---
+- opcode: ADD_UUID
+  index: 0x0000
+  params:
+    uuid: 0000a004-0000-1000-8000-00805f9b34fb
+    svc_hint: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: ADD_UUID
+    rparams:
+      dev_class: [0, 0, 0]
+    status: 0
+
+---
+- opcode: ADD_UUID
+  index: 0x0000
+  params:
+    uuid: 4f0ac096-35d4-4911-9631-dea8dc74eefe
+    svc_hint: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: ADD_UUID
+    rparams:
+      dev_class: [0, 0, 0]
+    status: 0
+

@@ -57,7 +57,7 @@
   params:
     opcode: READ_INFO
     rparams:
-      bdaddr: [175, 240, 175, 240, 175, 240]
+      bdaddr: F0:AF:F0:AF:F0:AF
       version: 6
       manufacturer: 0x003f
       supported_settings: 0x00000fff
@@ -85,7 +85,7 @@
   index: 0x0000
   params:
     addr:
-      bdaddr: [0, 0, 0, 0, 0, 0]
+      bdaddr: 00:00:00:00:00:00
       type: 0
 - opcode: CMD_COMPLETE
   index: 0x0000
@@ -93,7 +93,7 @@
     opcode: UNBLOCK_DEVICE
     rparams:
       addr:
-        bdaddr: [0, 0, 0, 0, 0, 0]
+        bdaddr: 00:00:00:00:00:00
         type: 0
     status: 0
 

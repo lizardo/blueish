@@ -95,7 +95,7 @@ def EventCode(name):
 
 def AddrInfo(name):
     return Struct(name,
-        Array(6, ULInt8("bdaddr")),
+        BdAddr("bdaddr"),
         ULInt8("type"),
     )
 
@@ -117,7 +117,7 @@ mgmt_rp_read_index_list = Struct("mgmt_rp_read_index_list",
 )
 
 mgmt_rp_read_info = Struct("mgmt_rp_read_info",
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt8("version"),
     ULInt16("manufacturer"),
     ULInt32("supported_settings"),

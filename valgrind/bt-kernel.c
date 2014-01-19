@@ -11,12 +11,46 @@
 #include <limits.h>
 #include <unistd.h>
 #include <stddef.h>
+#include <stdint.h>
+
 #include <valgrind.h>
+#define VGA_x86
+#define VGO_linux
+#include <pub_tool_basics.h>
+#include <pub_tool_libcbase.h>
+
+#ifndef BTPROTO_L2CAP
+#define BTPROTO_L2CAP 0
+#endif
+#ifndef SOL_L2CAP
+#define SOL_L2CAP 6
+#endif
+#ifndef SOL_BLUETOOTH
+#define SOL_BLUETOOTH 274
+#endif
+#ifndef BT_RCVMTU
+#define BT_RCVMTU 13
+#endif
+
+#ifndef L2CAP_OPTIONS
+#define L2CAP_OPTIONS 1
+struct l2cap_options {
+	uint16_t	omtu;
+	uint16_t	imtu;
+	uint16_t	flush_to;
+	uint8_t		mode;
+	uint8_t		fcs;
+	uint8_t		max_tx;
+	uint16_t	txwin_size;
+};
+#endif
 
 /* Base file descriptor for intercepted sockets */
 #define VIRTUAL_SK_BASE 1000
 /* Maximum number of intercepted sockets */
 #define VIRTUAL_SK_MAX 100
+
+#define SOCK_ADDR_MAX_LEN 14
 
 /* libc.so.6 */
 #define WRAP_FN(fn) I_WRAP_SONAME_FNNAME_ZZ(libcZdsoZd6,fn)
@@ -48,6 +82,11 @@ static struct {
 	int protocol;
 	int flags;
 	struct stat stat;
+
+	unsigned char src_addr[SOCK_ADDR_MAX_LEN];
+	int src_addrlen;
+	unsigned char dst_addr[SOCK_ADDR_MAX_LEN];
+	int dst_addrlen;
 } socket_data[VIRTUAL_SK_MAX];
 
 static int verify_send(int ret, int len)
@@ -133,6 +172,10 @@ int WRAP_FN(bind)(int fd, void *addr, unsigned int addrlen)
 		return ret;
 	}
 
+	assert(addrlen <= SOCK_ADDR_MAX_LEN);
+	VG_(memcpy)(socket_data[fd - VIRTUAL_SK_BASE].src_addr, addr, addrlen);
+	socket_data[fd - VIRTUAL_SK_BASE].src_addrlen = addrlen;
+
 	emu_sk = socket_data[fd - VIRTUAL_SK_BASE].emu_sk;
 	protocol = socket_data[fd - VIRTUAL_SK_BASE].protocol;
 
@@ -141,7 +184,7 @@ int WRAP_FN(bind)(int fd, void *addr, unsigned int addrlen)
 	iov[1].iov_base = addr;
 	iov[1].iov_len = addrlen;
 
-	memset(&msg, 0, sizeof(msg));
+	VG_(memset)(&msg, 0, sizeof(msg));
 	msg.msg_iov = iov;
 	msg.msg_iovlen = 2;
 
@@ -265,6 +308,144 @@ int WRAP_FN2(fcntl)(int fd, int cmd, int arg)
 	errno = ENOSYS;
 
 	return -1;
+}
+
+int WRAP_FN(setsockopt)(int fd, int level, int optname,
+		const void *optval, int optlen)
+{
+	int ret;
+	OrigFn fn;
+
+	VALGRIND_GET_ORIG_FN(fn);
+	DBG("setsockopt(%d, %d, %d, %p, %d)", fd, level, optname, optval,
+			optlen);
+
+	if (fd < VIRTUAL_SK_BASE) {
+		CALL_FN_W_5W(ret, fn, fd, level, optname, optval, optlen);
+		return ret;
+	}
+
+	return 0;
+}
+
+int WRAP_FN(getsockopt)(int fd, int level, int optname,
+		void *optval, int *optlen)
+{
+	int ret;
+	OrigFn fn;
+
+	VALGRIND_GET_ORIG_FN(fn);
+	DBG("getsockopt(%d, %d, %d, %p, %p)", fd, level, optname, optval,
+			optlen);
+
+	if (fd < VIRTUAL_SK_BASE) {
+		CALL_FN_W_5W(ret, fn, fd, level, optname, optval, optlen);
+		return ret;
+	}
+
+	if (level == SOL_SOCKET) {
+		switch (optname) {
+		case SO_ERROR:
+			*((int *) optval) = 0;
+			*optlen = sizeof(int);
+			return 0;
+		case SO_DOMAIN:
+			*((int *) optval) = AF_BLUETOOTH;
+			*optlen = sizeof(int);
+			return 0;
+		case SO_PROTOCOL:
+			*((int *) optval) = BTPROTO_L2CAP;
+			*optlen = sizeof(int);
+			return 0;
+		}
+	} else if (level == SOL_BLUETOOTH) {
+		switch (optname) {
+		case BT_RCVMTU:
+			/* TODO: implement support for this */
+			errno = EPROTONOSUPPORT;
+			return -1;
+		}
+	} else if (level == SOL_L2CAP) {
+		switch (optname) {
+		case L2CAP_OPTIONS:
+			assert(optlen &&
+				*optlen >= sizeof(struct l2cap_options));
+			VG_(memset)(optval, 0, *optlen);
+			((struct l2cap_options *) optval)->imtu = 672;
+			((struct l2cap_options *) optval)->omtu = 672;
+			*optlen = sizeof(struct l2cap_options);
+			return 0;
+		}
+	}
+
+	errno = ENOSYS;
+	return -1;
+}
+
+int WRAP_FN2(connect)(int fd, void *addr, int addrlen)
+{
+	int ret, emu_sk;
+	OrigFn fn;
+
+	VALGRIND_GET_ORIG_FN(fn);
+	DBG("connect(%d, %p, %d)", fd, addr, addrlen);
+
+	if (fd < VIRTUAL_SK_BASE) {
+		CALL_FN_W_WWW(ret, fn, fd, addr, addrlen);
+		return ret;
+	}
+
+	assert(addrlen <= SOCK_ADDR_MAX_LEN);
+	VG_(memcpy)(socket_data[fd - VIRTUAL_SK_BASE].dst_addr, addr, addrlen);
+	socket_data[fd - VIRTUAL_SK_BASE].dst_addrlen = addrlen;
+
+	emu_sk = socket_data[fd - VIRTUAL_SK_BASE].emu_sk;
+
+	ret = send(emu_sk, addr, addrlen, 0);
+	if (verify_send(ret, addrlen))
+		return -1;
+
+	return 0;
+}
+
+int WRAP_FN(getsockname)(int fd, void *addr, int *addrlen)
+{
+	int ret;
+	OrigFn fn;
+
+	VALGRIND_GET_ORIG_FN(fn);
+	DBG("getsockname(%d, %p, %p)", fd, addr, addrlen);
+
+	if (fd < VIRTUAL_SK_BASE) {
+		CALL_FN_W_WWW(ret, fn, fd, addr, addrlen);
+		return ret;
+	}
+
+	assert(*addrlen >= socket_data[fd - VIRTUAL_SK_BASE].src_addrlen);
+	*addrlen = socket_data[fd - VIRTUAL_SK_BASE].src_addrlen;
+	VG_(memcpy)(addr, socket_data[fd - VIRTUAL_SK_BASE].src_addr, *addrlen);
+
+	return 0;
+}
+
+int WRAP_FN(getpeername)(int fd, void *addr, int *addrlen)
+{
+	int ret;
+	OrigFn fn;
+
+	VALGRIND_GET_ORIG_FN(fn);
+	DBG("getpeername(%d, %p, %p)", fd, addr, addrlen);
+
+	if (fd < VIRTUAL_SK_BASE) {
+		CALL_FN_W_WWW(ret, fn, fd, addr, addrlen);
+		return ret;
+	}
+
+	assert(*addrlen >= socket_data[fd - VIRTUAL_SK_BASE].dst_addrlen);
+	*addrlen = socket_data[fd - VIRTUAL_SK_BASE].dst_addrlen;
+	VG_(memcpy)(addr, socket_data[fd - VIRTUAL_SK_BASE].dst_addr, *addrlen);
+
+	return 0;
 }
 
 #if 0

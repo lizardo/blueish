@@ -111,6 +111,9 @@ def io_add_watch(fd, cond, *args):
     return GLib.io_add_watch(fd, cond | GLib.IO_HUP | GLib.IO_ERR |
             GLib.IO_NVAL, *args)
 
+def print_bdaddr(bdaddr):
+    return ":".join(["%02X" % ord(c) for c in reversed(bdaddr)])
+
 class Dispatcher(object):
     def __init__(self, kernel_emulator):
         stateful = StatefulPacket()
@@ -154,7 +157,7 @@ class Dispatcher(object):
                 ofs += struct.calcsize("HH6sHBx")
                 print(("INFO: Registering L2CAP socket: family=%d, psm=%d, " +
                         "bdaddr=%s, cid=%d, bdaddr_type=%d") %
-                        (family, psm, repr(bdaddr), cid, bdaddr_type))
+                        (family, psm, print_bdaddr(bdaddr), cid, bdaddr_type))
                 registered_sockets[fd]["family"] = family
                 registered_sockets[fd]["psm"] = psm
                 registered_sockets[fd]["bdaddr"] = bdaddr
@@ -192,6 +195,23 @@ class Dispatcher(object):
                     assert l == len(p.decode("hex"))
             else:
                 print("ERROR: Unsupported mgmt packet: %s" % buf)
+                mainloop.quit()
+                return False
+        elif registered_sockets[fd]["proto"] == 0:
+            # L2CAP socket
+            if registered_sockets[fd].get("peer_bdaddr") is None:
+                # 1 byte of alignment padding
+                family, psm, bdaddr, cid, bdaddr_type = \
+                        struct.unpack("<HH6sHBx", buf)
+                assert family == registered_sockets[fd]["family"]
+                assert psm == registered_sockets[fd]["psm"]
+                assert cid == registered_sockets[fd]["cid"]
+                registered_sockets[fd]["peer_bdaddr"] = bdaddr
+                registered_sockets[fd]["peer_bdaddr_type"] = bdaddr_type
+                print(("INFO: New L2CAP connection: CID=%d, PSM=%d, " +
+                    "peer_bdaddr=%s") % (psm, cid, print_bdaddr(bdaddr)))
+            else:
+                print("ERROR: L2CAP not implemented yet")
                 mainloop.quit()
                 return False
         else:

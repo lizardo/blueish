@@ -211,6 +211,14 @@ mgmt_rp_start_discovery = Struct("mgmt_rp_start_discovery",
     ULInt8("type"),
 )
 
+mgmt_cp_stop_discovery = Struct("mgmt_cp_stop_discovery",
+    ULInt8("type"),
+)
+
+mgmt_rp_stop_discovery = Struct("mgmt_rp_stop_discovery",
+    ULInt8("type"),
+)
+
 mgmt_cp_unblock_device = Struct("mgmt_cp_unblock_device",
     AddrInfo("addr"),
 )
@@ -276,6 +284,7 @@ command = Struct("command",
                 "ADD_UUID": mgmt_cp_add_uuid,
                 "REMOVE_UUID": mgmt_cp_remove_uuid,
                 "START_DISCOVERY": mgmt_cp_start_discovery,
+                "STOP_DISCOVERY": mgmt_cp_stop_discovery,
                 "UNBLOCK_DEVICE": mgmt_cp_unblock_device,
                 "LOAD_LINK_KEYS": mgmt_cp_load_link_keys,
                 "LOAD_LONG_TERM_KEYS": mgmt_cp_load_long_term_keys,
@@ -304,12 +313,20 @@ mgmt_ev_cmd_complete = Struct("mgmt_ev_cmd_complete",
             "ADD_UUID": mgmt_rp_add_uuid,
             "REMOVE_UUID": mgmt_rp_remove_uuid,
             "START_DISCOVERY": mgmt_rp_start_discovery,
+            "STOP_DISCOVERY": mgmt_rp_stop_discovery,
             "UNBLOCK_DEVICE": mgmt_rp_unblock_device,
             "LOAD_LINK_KEYS": Pass,
             "LOAD_LONG_TERM_KEYS": Pass,
             "SET_DEVICE_ID": Pass,
         }
     ),
+)
+
+mgmt_ev_device_found = Struct("mgmt_ev_device_found",
+    AddrInfo("addr"),
+    SLInt8("rssi"),
+    ULInt32("flags"),
+    PascalString("eir", ULInt16("eir_len")),
 )
 
 event = Struct("event",
@@ -319,6 +336,7 @@ event = Struct("event",
         Switch("params", lambda ctx: ctx.opcode,
             {
                 "CMD_COMPLETE": mgmt_ev_cmd_complete,
+                "DEVICE_FOUND": mgmt_ev_device_found,
             }
         ),
     ),

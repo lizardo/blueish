@@ -247,6 +247,15 @@
     rparams:
       type: 6
     status: 0
+- opcode: DEVICE_FOUND
+  index: 0x0000
+  params:
+    addr:
+      bdaddr: CA:FE:CA:FE:CA:FE
+      type: 1
+    rssi: 0
+    flags: 0
+    eir: ""
 
 ---
 - opcode: SET_POWERED
@@ -258,5 +267,17 @@
     opcode: SET_POWERED
     rparams:
       current_settings: 0x00000253
+    status: 0
+
+---
+- opcode: STOP_DISCOVERY
+  index: 0x0000
+  params: {type: 6}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: STOP_DISCOVERY
+    rparams:
+      type: 6
     status: 0
 

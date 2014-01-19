@@ -205,7 +205,7 @@ def device_found(adapter_proxy, device_proxy):
 
     def device_connect_error(error):
         print("Device1.Connect failed: %s" % error)
-        sys.exit(1)
+        mainloop_quit()
 
     dev = dbus.Interface(device_proxy, "org.bluez.Device1")
     dev.Connect(reply_handler=device_connect_reply,

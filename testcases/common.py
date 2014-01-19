@@ -294,6 +294,9 @@ def mainloop_run(kernel_emulator=False):
     except KeyboardInterrupt:
         print("\nExiting...")
 
+def mainloop_quit():
+    mainloop.quit()
+
 def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
         log_file=None, kernel_emulator=False):
     import subprocess

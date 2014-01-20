@@ -2,20 +2,17 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <sys/syscall.h>
 #include <sys/un.h>
 #include <string.h>
+#include <fcntl.h>
 #include <poll.h>
 #include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <unistd.h>
 
-#define VGA_x86
-#define VGO_linux
 #include <valgrind.h>
-#include <pub_tool_basics.h>
-#include <pub_tool_vki.h>
-#include <pub_tool_libcbase.h>
-#include <pub_tool_libcfile.h>
 
 #ifndef BTPROTO_L2CAP
 #define BTPROTO_L2CAP 0
@@ -70,7 +67,8 @@ static void dbg(const char *format, ...)
 
 	va_start(ap, format);
 	vsnprintf(msg, sizeof(msg), format, ap);
-	ret = VG_(write)(2, msg, strlen(msg));
+	/* Do not use write() to avoid infinite loop as write() is wrapped */
+	ret = syscall(SYS_write, 2, msg, strlen(msg));
 	assert(ret == strlen(msg));
 	va_end(ap);
 }
@@ -149,7 +147,7 @@ int WRAP_FN(socket)(int domain, int type, int protocol)
 
 	socket_data[virtual_sk - VIRTUAL_SK_BASE].emu_sk = emu_sk;
 	socket_data[virtual_sk - VIRTUAL_SK_BASE].protocol = protocol;
-	socket_data[virtual_sk - VIRTUAL_SK_BASE].flags = VKI_O_RDWR;
+	socket_data[virtual_sk - VIRTUAL_SK_BASE].flags = O_RDWR;
 	if (type & SOCK_NONBLOCK)
 		socket_data[virtual_sk - VIRTUAL_SK_BASE].flags |= SOCK_NONBLOCK;
 	/* FIXME: fill socket_data.stat if necessary */
@@ -173,7 +171,7 @@ int WRAP_FN(bind)(int fd, void *addr, unsigned int addrlen)
 	}
 
 	assert(addrlen <= SOCK_ADDR_MAX_LEN);
-	VG_(memcpy)(socket_data[fd - VIRTUAL_SK_BASE].src_addr, addr, addrlen);
+	memcpy(socket_data[fd - VIRTUAL_SK_BASE].src_addr, addr, addrlen);
 	socket_data[fd - VIRTUAL_SK_BASE].src_addrlen = addrlen;
 
 	emu_sk = socket_data[fd - VIRTUAL_SK_BASE].emu_sk;
@@ -184,7 +182,7 @@ int WRAP_FN(bind)(int fd, void *addr, unsigned int addrlen)
 	iov[1].iov_base = addr;
 	iov[1].iov_len = addrlen;
 
-	VG_(memset)(&msg, 0, sizeof(msg));
+	memset(&msg, 0, sizeof(msg));
 	msg.msg_iov = iov;
 	msg.msg_iovlen = 2;
 
@@ -285,9 +283,9 @@ int WRAP_FN2(fcntl)(int fd, int cmd, int arg)
 	DBG("fcntl(%d, %d)", fd, cmd);
 
 	if (fd < VIRTUAL_SK_BASE) {
-		if (cmd == VKI_F_GETFL)
+		if (cmd == F_GETFL)
 			CALL_FN_W_WW(ret, fn, fd, cmd);
-		else if (cmd == VKI_F_SETFL)
+		else if (cmd == F_SETFL)
 			CALL_FN_W_WWW(ret, fn, fd, cmd, arg);
 		else {
 			DBG("Unsupported command: %d", cmd);
@@ -297,9 +295,9 @@ int WRAP_FN2(fcntl)(int fd, int cmd, int arg)
 		return ret;
 	}
 
-	if (cmd == VKI_F_GETFL)
+	if (cmd == F_GETFL)
 		return socket_data[fd - VIRTUAL_SK_BASE].flags;
-	else if (cmd == VKI_F_SETFL) {
+	else if (cmd == F_SETFL) {
 		socket_data[fd - VIRTUAL_SK_BASE].flags = arg;
 		return 0;
 	}
@@ -370,7 +368,7 @@ int WRAP_FN(getsockopt)(int fd, int level, int optname,
 		case L2CAP_OPTIONS:
 			assert(optlen &&
 				*optlen >= sizeof(struct l2cap_options));
-			VG_(memset)(optval, 0, *optlen);
+			memset(optval, 0, *optlen);
 			((struct l2cap_options *) optval)->imtu = 672;
 			((struct l2cap_options *) optval)->omtu = 672;
 			*optlen = sizeof(struct l2cap_options);
@@ -396,7 +394,7 @@ int WRAP_FN2(connect)(int fd, void *addr, int addrlen)
 	}
 
 	assert(addrlen <= SOCK_ADDR_MAX_LEN);
-	VG_(memcpy)(socket_data[fd - VIRTUAL_SK_BASE].dst_addr, addr, addrlen);
+	memcpy(socket_data[fd - VIRTUAL_SK_BASE].dst_addr, addr, addrlen);
 	socket_data[fd - VIRTUAL_SK_BASE].dst_addrlen = addrlen;
 
 	emu_sk = socket_data[fd - VIRTUAL_SK_BASE].emu_sk;
@@ -423,7 +421,7 @@ int WRAP_FN(getsockname)(int fd, void *addr, int *addrlen)
 
 	assert(*addrlen >= socket_data[fd - VIRTUAL_SK_BASE].src_addrlen);
 	*addrlen = socket_data[fd - VIRTUAL_SK_BASE].src_addrlen;
-	VG_(memcpy)(addr, socket_data[fd - VIRTUAL_SK_BASE].src_addr, *addrlen);
+	memcpy(addr, socket_data[fd - VIRTUAL_SK_BASE].src_addr, *addrlen);
 
 	return 0;
 }
@@ -443,7 +441,7 @@ int WRAP_FN(getpeername)(int fd, void *addr, int *addrlen)
 
 	assert(*addrlen >= socket_data[fd - VIRTUAL_SK_BASE].dst_addrlen);
 	*addrlen = socket_data[fd - VIRTUAL_SK_BASE].dst_addrlen;
-	VG_(memcpy)(addr, socket_data[fd - VIRTUAL_SK_BASE].dst_addr, *addrlen);
+	memcpy(addr, socket_data[fd - VIRTUAL_SK_BASE].dst_addr, *addrlen);
 
 	return 0;
 }

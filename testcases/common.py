@@ -211,9 +211,39 @@ class Dispatcher(object):
                 print(("INFO: New L2CAP connection: CID=%d, PSM=%d, " +
                     "peer_bdaddr=%s") % (psm, cid, print_bdaddr(bdaddr)))
             else:
-                print("ERROR: L2CAP not implemented yet")
-                mainloop.quit()
-                return False
+                # L2CAP: CID
+                dlen = struct.pack("<H", len(buf))
+                buf = struct.pack("<H", registered_sockets[fd]["cid"]) + buf
+                # L2CAP: data length
+                buf = dlen + buf
+                # ACL: data length
+                buf = struct.pack("<H", len(buf)) + buf
+                # ACL: header
+                buf = "\x01\x00" + buf
+                # HCI: packet indicator
+                buf = "\x02" + buf
+
+                buf = buf.encode("hex").upper()
+
+                if packets.uart.get(buf) is not None:
+                    for p in packets.uart[buf]:
+                        rsp = p.decode("hex")
+                        pkt_ind, = struct.unpack_from("<B", rsp, 0)
+                        if pkt_ind != 0x02:
+                            continue
+                        acl_hdr, acl_dlen, l2cap_dlen, l2cap_cid = \
+                                struct.unpack_from("<HHHH", rsp, 1)
+                        assert acl_hdr == 0x2001 or acl_hdr == 0x0001
+                        assert acl_dlen == l2cap_dlen + 4
+                        assert l2cap_cid == registered_sockets[fd]["cid"]
+
+                        ofs = struct.calcsize("<BHHHH")
+                        l = sock.send(rsp[ofs:])
+                        assert l == len(rsp[ofs:])
+                else:
+                    print("ERROR: Unsupported packet: %s" % buf)
+                    mainloop.quit()
+                    return False
         else:
             print("ERROR: Unsupported protocol %d (fd=%d)" %
                     (registered_sockets[fd]["proto"], fd))

@@ -145,7 +145,7 @@
     source: 2
     vendor: 7531
     product: 582
-    version: 1293
+    version: 1294
 - opcode: CMD_COMPLETE
   index: 0x0000
   params:
@@ -168,7 +168,7 @@
 ---
 - opcode: SET_LOCAL_NAME
   index: 0x0000
-  params: {name: "BlueZ 5.13", short_name: ""}
+  params: {name: "BlueZ 5.14", short_name: ""}
 - opcode: CMD_COMPLETE
   index: 0x0000
   params:

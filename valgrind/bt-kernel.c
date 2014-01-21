@@ -238,7 +238,7 @@ int WRAP_FN(poll)(struct pollfd *fds, int nfds, int timeout)
 	return ret;
 }
 
-int WRAP_FN2(write)(int fd, void *buf, int count)
+int WRAP_FN(write)(int fd, void *buf, int count)
 {
 	int ret, emu_sk;
 	OrigFn fn;
@@ -256,7 +256,7 @@ int WRAP_FN2(write)(int fd, void *buf, int count)
 	return send(emu_sk, buf, count, 0);
 }
 
-int WRAP_FN2(read)(int fd, void *buf, int count)
+int WRAP_FN(read)(int fd, void *buf, int count)
 {
 	int ret, emu_sk;
 	OrigFn fn;
@@ -274,7 +274,7 @@ int WRAP_FN2(read)(int fd, void *buf, int count)
 	return recv(emu_sk, buf, count, 0);
 }
 
-int WRAP_FN2(fcntl)(int fd, int cmd, int arg)
+int WRAP_FN(fcntl)(int fd, int cmd, int arg)
 {
 	int ret;
 	OrigFn fn;
@@ -380,7 +380,7 @@ int WRAP_FN(getsockopt)(int fd, int level, int optname,
 	return -1;
 }
 
-int WRAP_FN2(connect)(int fd, void *addr, int addrlen)
+int WRAP_FN(connect)(int fd, void *addr, int addrlen)
 {
 	int ret, emu_sk;
 	OrigFn fn;
@@ -466,3 +466,24 @@ int WRAP_FN(fstat)(int fd, void *buf)
 	return 0;
 }
 #endif
+
+int WRAP_FN2(write)(int fd, void *buf, int count)
+{
+	return WRAP_FN(write)(fd, buf, count);
+}
+
+int WRAP_FN2(read)(int fd, void *buf, int count)
+{
+	return WRAP_FN(read)(fd, buf, count);
+}
+
+int WRAP_FN2(fcntl)(int fd, int cmd, int arg)
+{
+	return WRAP_FN(fcntl)(fd, cmd, arg);
+}
+
+int WRAP_FN2(connect)(int fd, void *addr, int addrlen)
+{
+	return WRAP_FN(connect)(fd, addr, addrlen);
+}
+

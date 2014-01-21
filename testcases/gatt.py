@@ -5,7 +5,7 @@ import dbus.service
 from gi.repository import GLib
 
 # Timeout for terminating bluetoothd with CTRL+C
-TIMEOUT = 10
+TIMEOUT = 15
 
 gatt_services = set([
     "00001800-0000-1000-8000-00805f9b34fb",
@@ -219,19 +219,17 @@ def run_daemon(kernel_emulator):
     bluetoothd = run_bluetoothd("/opt/bluez", "/opt/bluez/var", True, log_file,
             kernel_emulator)
 
-def kill_daemon():
-    bluetoothd.terminate()
-
 test_dbus = fake_dbus()
 
 kernel_emulator = True
 
 GLib.idle_add(run_daemon, kernel_emulator)
-GLib.timeout_add_seconds(TIMEOUT, kill_daemon)
+GLib.timeout_add_seconds(TIMEOUT, mainloop_quit)
 device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
 
 mainloop_run(kernel_emulator)
 
+bluetoothd.terminate()
 bluetoothd.wait()
 log_file.close()
 test_dbus.down()

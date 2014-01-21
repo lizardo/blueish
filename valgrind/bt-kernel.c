@@ -446,6 +446,22 @@ int WRAP_FN(getpeername)(int fd, void *addr, int *addrlen)
 	return 0;
 }
 
+int WRAP_FN(close)(int fd)
+{
+	int ret;
+	OrigFn fn;
+
+	VALGRIND_GET_ORIG_FN(fn);
+	DBG("close(%d)", fd);
+
+	if (fd < VIRTUAL_SK_BASE) {
+		CALL_FN_W_W(ret, fn, fd);
+		return ret;
+	}
+
+	return close(socket_data[fd - VIRTUAL_SK_BASE].emu_sk);
+}
+
 #if 0
 int WRAP_FN(fstat)(int fd, void *buf)
 {

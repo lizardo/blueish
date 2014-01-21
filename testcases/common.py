@@ -140,7 +140,13 @@ class Dispatcher(object):
 
     @staticmethod
     def read_sock_data(fd, cb_condition, stateful, sock, registered_sockets):
-        assert cb_condition == GLib.IO_IN
+        if cb_condition & GLib.IO_HUP:
+            if registered_sockets.get(fd):
+                del registered_sockets[fd]
+            print("INFO: socket %d closed" % fd)
+            return False
+
+        assert cb_condition & GLib.IO_IN
 
         buf = sock.recv(4096)
         ofs = 0

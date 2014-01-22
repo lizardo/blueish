@@ -369,7 +369,8 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
     else:
         stderr = stdout = None
 
-    open("/tmp/bluetoothd.sup", "w").write("\n".join([
+    sup_file = os.tmpfile()
+    sup_file.write("\n".join([
             "{",
             "libc-exit",
             "Memcheck:Free",
@@ -377,6 +378,20 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
             "fun:__libc_freeres",
             "fun:_Exit",
             "}"]))
+
+    open_fds = filter(lambda fd: fd > 2, map(int, os.listdir("/dev/fd")))
+    new_fd = max(open_fds) + 1
+
+    def close_fds():
+        # Close all FDs, but duplicate suppression file descriptor first.
+        # Unfortunately, we can't use close_fds=True on Popen(), otherwise the
+        # temporary file created above will also be closed.
+        os.dup2(sup_file.fileno(), new_fd)
+        for fd in open_fds:
+            try:
+                os.close(fd)
+            except:
+                pass
 
     env = {
         "G_SLICE": "always-malloc",
@@ -388,11 +403,11 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
         env["LD_PRELOAD"] = basedir + "/../valgrind/bt-kernel.so"
 
     return subprocess.Popen(["valgrind", "--track-fds=yes", "--leak-check=full",
-            "--suppressions=/tmp/bluetoothd.sup",
+            "--suppressions=/dev/fd/%d" % new_fd,
     #return subprocess.Popen(["/usr/bin/strace", "-x", "-v", "-ff", "-s", "200",
     #"/usr/bin/strace", "-x", "-v", "-ff", "-s", "200", "-o", "/tmp/strace.log",
             prefix + "/libexec/bluetooth/bluetoothd", "-n", "-d"],
-            stderr=stderr, stdout=stdout, env=env, close_fds=True)
+            stderr=stderr, stdout=stdout, env=env, preexec_fn=close_fds)
 
 def fake_dbus():
     test_dbus = Gio.TestDBus.new(Gio.TestDBusFlags.NONE)

@@ -404,8 +404,6 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
 
     return subprocess.Popen(["valgrind", "--track-fds=yes", "--leak-check=full",
             "--suppressions=/dev/fd/%d" % new_fd,
-    #return subprocess.Popen(["/usr/bin/strace", "-x", "-v", "-ff", "-s", "200",
-    #"/usr/bin/strace", "-x", "-v", "-ff", "-s", "200", "-o", "/tmp/strace.log",
             prefix + "/libexec/bluetooth/bluetoothd", "-n", "-d"],
             stderr=stderr, stdout=stdout, env=env, preexec_fn=close_fds)
 

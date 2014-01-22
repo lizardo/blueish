@@ -20,6 +20,7 @@ import dbus
 import dbus.mainloop.glib
 import struct
 import socket
+import subprocess
 from gi.repository import GLib, GObject, Gio
 import packets
 
@@ -59,7 +60,7 @@ class StatefulPacket(object):
             # NOTE: EIR data is ignored for now
             return "040E0401520C00"
 
-def device_add_watch(bd_addr, callback):
+def device_add_watch(callback):
     dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
     bus = dbus.SystemBus()
 
@@ -85,8 +86,7 @@ def device_add_watch(bd_addr, callback):
                     dbus.Boolean(True), lambda: adapter.StartDiscovery())
         elif "org.bluez.Device1" in ifaces:
             d = ifaces["org.bluez.Device1"]
-            if d["Adapter"] != adapter.object_path or d["Address"] != bd_addr:
-                return
+            assert d["Adapter"] == adapter.object_path
             print("Found device %s" % path)
             adapter.StopDiscovery()
             callback(adapter.proxy_object, bus.get_object("org.bluez", path))
@@ -338,30 +338,46 @@ class RFKill(object):
 
         return True
 
-def mainloop_run(kernel_emulator=False):
+def mainloop_run(timeout, app_args, log_file, kernel_emulator, device_cb=None):
     global mainloop
 
     if not kernel_emulator:
         rfkill = RFKill()
+
     dispatcher = Dispatcher(kernel_emulator)
+
     mainloop = GObject.MainLoop()
+
+    # Run under a private D-Bus system bus
+    test_dbus = Gio.TestDBus.new(Gio.TestDBusFlags.NONE)
+    test_dbus.up()
+    os.environ["DBUS_SYSTEM_BUS_ADDRESS"] = test_dbus.get_bus_address()
+
+    if device_cb:
+        device_add_watch(device_cb)
+
+    def run_app():
+        global app
+        app = run_application(app_args, log_file, kernel_emulator)
+
+    GLib.idle_add(run_app)
+    GLib.timeout_add_seconds(timeout, mainloop.quit)
+    print("INFO: test will timeout in %s seconds" % timeout)
+
     try:
         mainloop.run()
     except KeyboardInterrupt:
-        print("\nExiting...")
+        pass
+
+    print("\nExiting...")
+    app.terminate()
+    app.wait()
+    test_dbus.down()
 
 def mainloop_quit():
     mainloop.quit()
 
-def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
-        log_file=None, kernel_emulator=False):
-    import subprocess
-    import shutil
-
-    if clear_storage:
-        print("INFO: Cleaning storage")
-        shutil.rmtree(var + "/lib/bluetooth", ignore_errors=True)
-        os.makedirs(var + "/lib/bluetooth", mode=0755)
+def run_application(app, log_file, kernel_emulator):
 
     if log_file:
         stderr = subprocess.STDOUT
@@ -403,13 +419,5 @@ def run_bluetoothd(prefix="/usr", var="/var", clear_storage=True,
         env["LD_PRELOAD"] = basedir + "/../valgrind/bt-kernel.so"
 
     return subprocess.Popen(["valgrind", "--track-fds=yes", "--leak-check=full",
-            "--suppressions=/dev/fd/%d" % new_fd,
-            prefix + "/libexec/bluetooth/bluetoothd", "-n", "-d"],
-            stderr=stderr, stdout=stdout, env=env, preexec_fn=close_fds)
-
-def fake_dbus():
-    test_dbus = Gio.TestDBus.new(Gio.TestDBusFlags.NONE)
-    test_dbus.up()
-    os.environ["DBUS_SYSTEM_BUS_ADDRESS"] = test_dbus.get_bus_address()
-
-    return test_dbus
+            "--suppressions=/dev/fd/%d" % new_fd] + app, stderr=stderr,
+            stdout=stdout, env=env, preexec_fn=close_fds)

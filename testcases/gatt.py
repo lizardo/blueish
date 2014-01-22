@@ -3,9 +3,8 @@ from __future__ import print_function
 from common import *
 import dbus.service
 from gi.repository import GLib
-
-# Timeout for terminating bluetoothd with CTRL+C
-TIMEOUT = 15
+import os
+import shutil
 
 gatt_services = set([
     "00001800-0000-1000-8000-00805f9b34fb",
@@ -211,25 +210,16 @@ def device_found(adapter_proxy, device_proxy):
     dev.Connect(reply_handler=device_connect_reply,
             error_handler=device_connect_error)
 
-def run_daemon(kernel_emulator):
-    global bluetoothd, log_file
+prefix = "/opt/bluez"
 
-    print("INFO: bluetoothd will be terminated in %s seconds" % TIMEOUT)
-    log_file = open("/tmp/bluetoothd.log", "w")
-    bluetoothd = run_bluetoothd("/opt/bluez", "/opt/bluez/var", True, log_file,
-            kernel_emulator)
+print("INFO: Cleaning bluetoothd storage")
+shutil.rmtree(prefix + "/var/lib/bluetooth", ignore_errors=True)
+os.makedirs(prefix + "/var/lib/bluetooth", mode=0755)
 
-test_dbus = fake_dbus()
+log_file = open("/tmp/bluetoothd.log", "w")
 
-kernel_emulator = True
+mainloop_run(kernel_emulator=True, timeout=15, log_file=log_file,
+        app_args=[prefix + "/libexec/bluetooth/bluetoothd", "-n", "-d"],
+        device_cb=device_found)
 
-GLib.idle_add(run_daemon, kernel_emulator)
-GLib.timeout_add_seconds(TIMEOUT, mainloop_quit)
-device_add_watch("CA:FE:CA:FE:CA:FE", device_found)
-
-mainloop_run(kernel_emulator)
-
-bluetoothd.terminate()
-bluetoothd.wait()
 log_file.close()
-test_dbus.down()

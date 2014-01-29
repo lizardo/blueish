@@ -26,6 +26,19 @@
     params: {count: 1, handle: 1, num_handles: 1}
   packet_indicator: EVENT
 
+# Issue a "Discover All Primary Services" from the device side
+- packet:
+    data:
+      cid: LE_DATA
+      data: !att
+        opcode: READ_BY_GROUP_REQ
+        params:
+          start_handle: 0x0001
+          end_handle: 0xffff
+          group_type: 0x2800
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+
 ---
 - packet:
     data:

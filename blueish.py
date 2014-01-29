@@ -38,6 +38,8 @@ if __name__ == "__main__":
             lambda l, n: sdp.build(Container(**l.construct_mapping(n))))
     yaml.add_constructor('!att',
             lambda l, n: att.build(Container(**l.construct_mapping(n))))
+    yaml.add_constructor('!hex',
+            lambda l, n: l.construct_scalar(n).decode("hex"))
 
     print("Generating testcases/packets.py...")
 

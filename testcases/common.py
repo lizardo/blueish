@@ -378,7 +378,6 @@ def mainloop_quit():
     mainloop.quit()
 
 def run_application(app, log_file, kernel_emulator):
-
     if log_file:
         stderr = subprocess.STDOUT
         stdout = log_file
@@ -409,10 +408,9 @@ def run_application(app, log_file, kernel_emulator):
             except:
                 pass
 
-    env = {
-        "G_SLICE": "always-malloc",
-        "DBUS_SYSTEM_BUS_ADDRESS": os.environ["DBUS_SYSTEM_BUS_ADDRESS"],
-    }
+    env = {"G_SLICE": "always-malloc"}
+    if os.environ.get("DBUS_SYSTEM_BUS_ADDRESS"):
+        env["DBUS_SYSTEM_BUS_ADDRESS"] = os.environ["DBUS_SYSTEM_BUS_ADDRESS"]
 
     if kernel_emulator:
         basedir = os.path.dirname(sys.argv[0])

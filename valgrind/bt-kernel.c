@@ -68,7 +68,7 @@ static void dbg(const char *format, ...)
 	va_start(ap, format);
 	vsnprintf(msg, sizeof(msg), format, ap);
 	/* Do not use write() to avoid infinite loop as write() is wrapped */
-	ret = syscall(SYS_write, 2, msg, strlen(msg));
+	ret = syscall(SYS_write, STDERR_FILENO, msg, strlen(msg));
 	assert(ret == strlen(msg));
 	va_end(ap);
 }

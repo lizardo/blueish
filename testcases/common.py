@@ -418,4 +418,5 @@ def run_application(app, log_file, kernel_emulator):
 
     return subprocess.Popen(["valgrind", "--track-fds=yes", "--leak-check=full",
             "--suppressions=/dev/fd/%d" % new_fd, "--trace-children=yes"] + app,
-            stderr=stderr, stdout=stdout, env=env, preexec_fn=close_fds)
+            stderr=stderr, stdout=stdout, env=env, preexec_fn=close_fds,
+            bufsize=1)

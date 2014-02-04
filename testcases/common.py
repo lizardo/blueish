@@ -417,5 +417,5 @@ def run_application(app, log_file, kernel_emulator):
         env["LD_PRELOAD"] = basedir + "/../valgrind/bt-kernel.so"
 
     return subprocess.Popen(["valgrind", "--track-fds=yes", "--leak-check=full",
-            "--suppressions=/dev/fd/%d" % new_fd] + app, stderr=stderr,
-            stdout=stdout, env=env, preexec_fn=close_fds)
+            "--suppressions=/dev/fd/%d" % new_fd, "--trace-children=yes"] + app,
+            stderr=stderr, stdout=stdout, env=env, preexec_fn=close_fds)

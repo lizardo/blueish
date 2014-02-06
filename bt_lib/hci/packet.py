@@ -44,7 +44,7 @@ inquiry_cancel_rp = Struct("inquiry_cancel_rp",
 )
 
 create_conn_cp = Struct("create_conn_cp",
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt16("pkt_type"),
     ULInt8("pscan_rep_mode"),
     ULInt8("reserved"),
@@ -67,19 +67,19 @@ set_conn_encrypt_cp = Struct("set_conn_encrypt_cp",
 )
 
 remote_name_req_cp = Struct("remote_name_req_cp",
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt8("pscan_rep_mode"),
     ULInt8("reserved"),
     ULInt16("clock_offset"),
 )
 
 remote_name_req_cancel_cp = Struct("remote_name_req_cancel_cp",
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
 )
 
 remote_name_req_cancel_rp = Struct("remote_name_req_cancel_rp",
     ULInt8("status"),
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
 )
 
 read_remote_features_cp = Struct("read_remote_features_cp",
@@ -180,7 +180,7 @@ set_event_flt_cp = Struct("set_event_flt_cp",
                     Array(3, ULInt8("dev_class")),
                     Array(3, ULInt8("dev_class_mask")),
                 ),
-                "RETURN_BDADDR": Array(6, ULInt8("bdaddr")),
+                "RETURN_BDADDR": BdAddr("bdaddr"),
                 "ALLOW_ALL": ULInt8("auto_accept_flag"),
                 "ALLOW_CLASS": Struct("cond_class",
                     Array(3, ULInt8("dev_class")),
@@ -188,7 +188,7 @@ set_event_flt_cp = Struct("set_event_flt_cp",
                     ULInt8("auto_accept_flag"),
                 ),
                 "ALLOW_BDADDR": Struct("cond_bdaddr",
-                    Array(6, ULInt8("bdaddr")),
+                    BdAddr("bdaddr"),
                     ULInt8("auto_accept_flag"),
                 ),
             }
@@ -201,7 +201,7 @@ set_event_flt_rp = Struct("set_event_flt_rp",
 )
 
 read_stored_link_key_cp = Struct("read_stored_link_key_cp",
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt8("read_all"),
 )
 
@@ -212,7 +212,7 @@ read_stored_link_key_rp = Struct("read_stored_link_key_rp",
 )
 
 delete_stored_link_key_cp = Struct("delete_stored_link_key_cp",
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt8("delete_all"),
 )
 
@@ -402,7 +402,7 @@ read_buffer_size_rp = Struct("read_buffer_size_rp",
 
 read_bd_addr_rp = Struct("read_bd_addr_rp",
     ULInt8("status"),
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
 )
 
 # LE Controller (OGF 0x08)
@@ -611,7 +611,7 @@ evt_inquiry_complete = Struct("evt_inquiry_complete",
 # FIXME: allow multiple responses
 evt_inquiry_result = Struct("evt_inquiry_result",
     ULInt8("num_rsp"),
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt8("pscan_rep_mode"),
     ULInt8("reserved1"),
     ULInt8("reserved2"),
@@ -622,7 +622,7 @@ evt_inquiry_result = Struct("evt_inquiry_result",
 evt_conn_complete = Struct("evt_conn_complete",
     ULInt8("status"),
     ULInt16("handle"),
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt8("link_type"),
     ULInt8("encr_mode"),
 )
@@ -640,7 +640,7 @@ evt_auth_complete = Struct("evt_auth_complete",
 
 evt_remote_name_req_complete = Struct("evt_remote_name_req_complete",
     ULInt8("status"),
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     String("name", HCI_MAX_NAME_LENGTH, padchar="\x00"),
 )
 
@@ -743,7 +743,7 @@ evt_read_remote_ext_features_complete = Struct("evt_read_remote_ext_features_com
 
 evt_extended_inquiry_result = Struct("evt_extended_inquiry_result",
     ULInt8("num_rsp"),
-    Array(6, ULInt8("bdaddr")),
+    BdAddr("bdaddr"),
     ULInt8("pscan_rep_mode"),
     ULInt8("reserved"),
     Array(3, ULInt8("dev_class")),

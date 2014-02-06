@@ -180,7 +180,7 @@
       ncmd: 1
       opcode: {ocf: READ_BD_ADDR, ogf: INFO_PARAM}
       rparams:
-        bdaddr: [175, 240, 175, 240, 175, 240]
+        bdaddr: "f0:af:f0:af:f0:af"
         status: 0
   packet_indicator: EVENT
 
@@ -188,7 +188,7 @@
 - packet:
     opcode: {ocf: READ_STORED_LINK_KEY, ogf: HOST_CTL}
     params:
-      bdaddr: [0, 0, 0, 0, 0, 0]
+      bdaddr: "00:00:00:00:00:00"
       read_all: 1
   packet_indicator: COMMAND
 - packet:
@@ -229,7 +229,7 @@
 - packet:
     opcode: {ocf: DELETE_STORED_LINK_KEY, ogf: HOST_CTL}
     params:
-      bdaddr: [0, 0, 0, 0, 0, 0]
+      bdaddr: "00:00:00:00:00:00"
       delete_all: 1
   packet_indicator: COMMAND
 - packet:

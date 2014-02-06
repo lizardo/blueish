@@ -24,6 +24,7 @@ link_ctl_commands = Enum(BitField("ocf", 10),
     INQUIRY_CANCEL = 0x0002,
     CREATE_CONN = 0x0005,
     DISCONNECT = 0x0006,
+    LINK_KEY_REQUEST_NEG_REPLY = 0x000c,
     AUTH_REQUESTED = 0x0011,
     SET_CONN_ENCRYPT = 0x0013,
     REMOTE_NAME_REQ = 0x0019,
@@ -55,6 +56,15 @@ create_conn_cp = Struct("create_conn_cp",
 disconnect_cp = Struct("disconnect_cp",
     ULInt16("handle"),
     ULInt8("reason"),
+)
+
+link_key_request_neg_reply_cp = Struct("link_key_request_neg_reply_cp",
+    BdAddr("bdaddr"),
+)
+
+link_key_request_neg_reply_rp = Struct("link_key_request_neg_reply_rp",
+    ULInt8("status"),
+    BdAddr("bdaddr"),
 )
 
 auth_requested_cp = Struct("auth_requested_cp",
@@ -544,6 +554,7 @@ command = Struct("command",
                 "INQUIRY_CANCEL": Pass,
                 "CREATE_CONN": create_conn_cp,
                 "DISCONNECT": disconnect_cp,
+                "LINK_KEY_REQUEST_NEG_REPLY": link_key_request_neg_reply_cp,
                 "AUTH_REQUESTED": auth_requested_cp,
                 "SET_CONN_ENCRYPT": set_conn_encrypt_cp,
                 "REMOTE_NAME_REQ": remote_name_req_cp,
@@ -671,6 +682,7 @@ evt_cmd_complete = Struct("evt_cmd_complete",
         {
             # Link Control (OGF 0x01)
             "INQUIRY_CANCEL": inquiry_cancel_rp,
+            "LINK_KEY_REQUEST_NEG_REPLY": link_key_request_neg_reply_rp,
             "REMOTE_NAME_REQ_CANCEL": remote_name_req_cancel_rp,
             # Link Policy (OGF 0x02)
             "WRITE_DEFAULT_LINK_POLICY": write_default_link_policy_rp,
@@ -731,6 +743,10 @@ evt_num_comp_pkts = Struct("evt_num_comp_pkts",
     ULInt8("num_handles"),
     ULInt16("handle"),
     ULInt16("count"),
+)
+
+evt_link_key_request = Struct("evt_link_key_request",
+    BdAddr("bdaddr"),
 )
 
 evt_read_remote_ext_features_complete = Struct("evt_read_remote_ext_features_complete",
@@ -805,6 +821,7 @@ event = Struct("event",
         CMD_COMPLETE = 0x0e,
         CMD_STATUS = 0x0f,
         NUM_COMP_PKTS = 0x13,
+        LINK_KEY_REQUEST = 0x17,
         READ_REMOTE_EXT_FEATURES_COMPLETE = 0x23,
         EXTENDED_INQUIRY_RESULT = 0x2f,
         LE_META_EVENT = 0x3e,
@@ -824,6 +841,7 @@ event = Struct("event",
                 "CMD_COMPLETE": evt_cmd_complete,
                 "CMD_STATUS": evt_cmd_status,
                 "NUM_COMP_PKTS": evt_num_comp_pkts,
+                "LINK_KEY_REQUEST": evt_link_key_request,
                 "READ_REMOTE_EXT_FEATURES_COMPLETE": evt_read_remote_ext_features_complete,
                 "EXTENDED_INQUIRY_RESULT": evt_extended_inquiry_result,
                 "LE_META_EVENT": evt_le_meta_event,

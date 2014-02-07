@@ -94,7 +94,7 @@
       ncmd: 1
       opcode: {ocf: READ_LOCAL_FEATURES, ogf: INFO_PARAM}
       rparams:
-        features: [164, 8, 0, 192, 88, 30, 123, 131]
+        features: [0xff, 0xff, 0xff, 0xfe, 0xdb, 0xff, 0x7b, 0x87]
         status: 0
   packet_indicator: EVENT
 
@@ -124,7 +124,7 @@
       ncmd: 1
       opcode: {ocf: READ_LOCAL_EXT_FEATURES, ogf: INFO_PARAM}
       rparams:
-        features: [1, 0, 0, 0, 0, 0, 0, 0]
+        features: [0, 0, 0, 0, 0, 0, 0, 0]
         max_page_num: 1
         page_num: 1
         status: 0

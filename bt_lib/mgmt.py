@@ -203,6 +203,28 @@ mgmt_rp_remove_uuid = Struct("mgmt_rp_remove_uuid",
     Array(3, ULInt8("dev_class")),
 )
 
+mgmt_cp_set_io_capability = Struct("mgmt_cp_set_io_capability",
+    ULInt8("io_capability"),
+)
+
+mgmt_cp_pair_device = Struct("mgmt_cp_pair_device",
+    AddrInfo("addr"),
+    ULInt8("io_capability"),
+)
+
+mgmt_rp_pair_device = Struct("mgmt_rp_pair_device",
+    AddrInfo("addr"),
+)
+
+mgmt_cp_unpair_device = Struct("mgmt_cp_unpair_device",
+    AddrInfo("addr"),
+    ULInt8("disconnect"),
+)
+
+mgmt_rp_unpair_device = Struct("mgmt_rp_unpair_device",
+    AddrInfo("addr"),
+)
+
 mgmt_cp_start_discovery = Struct("mgmt_cp_start_discovery",
     ULInt8("type"),
 )
@@ -217,6 +239,15 @@ mgmt_cp_stop_discovery = Struct("mgmt_cp_stop_discovery",
 
 mgmt_rp_stop_discovery = Struct("mgmt_rp_stop_discovery",
     ULInt8("type"),
+)
+
+mgmt_cp_confirm_name = Struct("mgmt_cp_confirm_name",
+    AddrInfo("addr"),
+    ULInt8("name_known"),
+)
+
+mgmt_rp_confirm_name = Struct("mgmt_rp_confirm_name",
+    AddrInfo("addr"),
 )
 
 mgmt_cp_unblock_device = Struct("mgmt_cp_unblock_device",
@@ -264,6 +295,14 @@ mgmt_cp_set_device_id = Struct("mgmt_cp_set_device_id",
     ULInt16("version"),
 )
 
+mgmt_cp_set_secure_conn = Struct("mgmt_cp_set_secure_conn",
+    ULInt8("secure"),
+)
+
+mgmt_rp_set_secure_conn = Struct("mgmt_rp_set_secure_conn",
+    ULInt32("current_settings"),
+)
+
 command = Struct("command",
     CommandCode("opcode"),
     ULInt16("index"),
@@ -283,12 +322,17 @@ command = Struct("command",
                 "SET_LOCAL_NAME": mgmt_cp_set_local_name,
                 "ADD_UUID": mgmt_cp_add_uuid,
                 "REMOVE_UUID": mgmt_cp_remove_uuid,
+                "SET_IO_CAPABILITY": mgmt_cp_set_io_capability,
+                "PAIR_DEVICE": mgmt_cp_pair_device,
+                "UNPAIR_DEVICE": mgmt_cp_unpair_device,
                 "START_DISCOVERY": mgmt_cp_start_discovery,
                 "STOP_DISCOVERY": mgmt_cp_stop_discovery,
+                "CONFIRM_NAME": mgmt_cp_confirm_name,
                 "UNBLOCK_DEVICE": mgmt_cp_unblock_device,
                 "LOAD_LINK_KEYS": mgmt_cp_load_link_keys,
                 "LOAD_LONG_TERM_KEYS": mgmt_cp_load_long_term_keys,
                 "SET_DEVICE_ID": mgmt_cp_set_device_id,
+                "SET_SECURE_CONN": mgmt_cp_set_secure_conn,
             }
         ),
     ),
@@ -312,14 +356,38 @@ mgmt_ev_cmd_complete = Struct("mgmt_ev_cmd_complete",
             "SET_LOCAL_NAME": mgmt_rp_set_local_name,
             "ADD_UUID": mgmt_rp_add_uuid,
             "REMOVE_UUID": mgmt_rp_remove_uuid,
+            "SET_IO_CAPABILITY": Pass,
+            "PAIR_DEVICE": mgmt_rp_pair_device,
+            "UNPAIR_DEVICE": mgmt_rp_unpair_device,
             "START_DISCOVERY": mgmt_rp_start_discovery,
             "STOP_DISCOVERY": mgmt_rp_stop_discovery,
+            "CONFIRM_NAME": mgmt_rp_confirm_name,
             "UNBLOCK_DEVICE": mgmt_rp_unblock_device,
             "LOAD_LINK_KEYS": Pass,
             "LOAD_LONG_TERM_KEYS": Pass,
             "SET_DEVICE_ID": Pass,
+            "SET_SECURE_CONN": mgmt_rp_set_secure_conn,
         }
     ),
+)
+
+mgmt_ev_new_settings = Struct("mgmt_ev_new_settings",
+    ULInt32("current_settings"),
+)
+
+mgmt_ev_class_of_dev_changed = Struct("mgmt_ev_class_of_dev_changed",
+    Array(3, ULInt8("dev_class")),
+)
+
+mgmt_ev_local_name_changed = Struct("mgmt_ev_local_name_changed",
+    String("name", 249, padchar="\x00"),
+    String("short_name", 11, padchar="\x00"),
+)
+
+mgmt_ev_device_connected = Struct("mgmt_ev_device_connected",
+    AddrInfo("addr"),
+    ULInt32("flags"),
+    PascalString("eir", ULInt16("eir_len")),
 )
 
 mgmt_ev_device_found = Struct("mgmt_ev_device_found",
@@ -329,6 +397,11 @@ mgmt_ev_device_found = Struct("mgmt_ev_device_found",
     PascalString("eir", ULInt16("eir_len")),
 )
 
+mgmt_ev_discovering = Struct("mgmt_ev_discovering",
+    ULInt8("type"),
+    ULInt8("discovering"),
+)
+
 event = Struct("event",
     EventCode("opcode"),
     ULInt16("index"),
@@ -336,7 +409,13 @@ event = Struct("event",
         Switch("params", lambda ctx: ctx.opcode,
             {
                 "CMD_COMPLETE": mgmt_ev_cmd_complete,
+                "INDEX_ADDED": Pass,
+                "NEW_SETTINGS": mgmt_ev_new_settings,
+                "CLASS_OF_DEV_CHANGED": mgmt_ev_class_of_dev_changed,
+                "LOCAL_NAME_CHANGED": mgmt_ev_local_name_changed,
+                "DEVICE_CONNECTED": mgmt_ev_device_connected,
                 "DEVICE_FOUND": mgmt_ev_device_found,
+                "DISCOVERING": mgmt_ev_discovering,
             }
         ),
     ),

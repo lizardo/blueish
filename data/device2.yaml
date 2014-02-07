@@ -130,7 +130,7 @@
     params:
       bdaddr: "12:34:12:34:12:34"
       clock_offset: 0x8000
-      pkt_type: 0x0018
+      pkt_type: 0xcc18
       pscan_rep_mode: 0x02
       reserved: 0x00
       role_switch: 0x01

@@ -1,0 +1,194 @@
+- opcode: SET_LOCAL_NAME
+  index: 0x0000
+  params: {name: "BlueZ for Android", short_name: ""}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_LOCAL_NAME
+    rparams: {name: "BlueZ for Android", short_name: ""}
+    status: 0
+- opcode: LOCAL_NAME_CHANGED
+  index: 0x0000
+  params: {name: "BlueZ for Android", short_name: ""}
+
+---
+- index: 0
+  opcode: SET_DEV_CLASS
+  params: {major: 2, minor: 12}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_DEV_CLASS
+    rparams:
+      dev_class: [12, 2, 0]
+    status: 0
+- opcode: CLASS_OF_DEV_CHANGED
+  index: 0x0000
+  params: {dev_class: [12, 2, 0]}
+
+---
+- opcode: REMOVE_UUID
+  index: 0x0000
+  params:
+    uuid: 00000000-0000-0000-0000-000000000000
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: REMOVE_UUID
+    rparams:
+      dev_class: [12, 2, 0]
+    status: 0
+
+---
+- index: 0
+  opcode: SET_IO_CAPABILITY
+  params: {io_capability: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_IO_CAPABILITY
+    rparams: null
+    status: 0
+
+---
+- index: 0
+  opcode: SET_DEVICE_ID
+  params: {product: 583, source: 2, vendor: 7531, version: 1294}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_DEVICE_ID
+    rparams: null
+    status: 0
+
+---
+- opcode: ADD_UUID
+  index: 0x0000
+  params:
+    uuid: 00001200-0000-1000-8000-00805f9b34fb
+    svc_hint: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: ADD_UUID
+    rparams:
+      dev_class: [12, 2, 0]
+    status: 0
+
+---
+- opcode: SET_SSP
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_SSP
+    rparams:
+      current_settings: 0x000000c0
+    status: 0
+- opcode: NEW_SETTINGS
+  index: 0x0000
+  params: {current_settings: 0x000000c0}
+
+---
+- opcode: SET_PAIRABLE
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_PAIRABLE
+    rparams:
+      current_settings: 0x000000d0
+    status: 0
+- opcode: NEW_SETTINGS
+  index: 0x0000
+  params: {current_settings: 0x000000d0}
+
+---
+- opcode: SET_POWERED
+  index: 0x0000
+  params: {enable: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: SET_POWERED
+    rparams:
+      current_settings: 0x000000d1
+    status: 0
+- opcode: NEW_SETTINGS
+  index: 0x0000
+  params: {current_settings: 0x000000d1}
+
+---
+- opcode: START_DISCOVERY
+  index: 0x0000
+  params: {type: 1}
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: START_DISCOVERY
+    rparams:
+      type: 1
+    status: 0
+- opcode: DISCOVERING
+  index: 0x0000
+  params:
+    type: 1
+    discovering: 1
+- opcode: DEVICE_FOUND
+  index: 0x0000
+  params:
+    addr:
+      bdaddr: "12:34:12:34:12:34"
+      type: 0
+    rssi: 0
+    flags: 0x0003
+    eir: !hex 040d000000
+- opcode: DISCOVERING
+  index: 0x0000
+  params:
+    type: 1
+    discovering: 0
+
+---
+- opcode: PAIR_DEVICE
+  index: 0x0000
+  params:
+    addr: {bdaddr: "12:34:12:34:12:34", type: 0}
+    io_capability: 1
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: PAIR_DEVICE
+    rparams:
+      addr: {bdaddr: "12:34:12:34:12:34", type: 0}
+    status: 0
+- opcode: DEVICE_CONNECTED
+  index: 0x0000
+  params:
+    addr: {bdaddr: "12:34:12:34:12:34", type: 0}
+    flags: 0x0000
+    eir: !hex 09097465737431323334
+
+---
+- opcode: CONFIRM_NAME
+  index: 0x0000
+  params:
+    addr: {bdaddr: "12:34:12:34:12:34", type: 0}
+    name_known: 0
+- opcode: CMD_COMPLETE
+  index: 0x0000
+  params:
+    opcode: CONFIRM_NAME
+    rparams:
+      addr: {bdaddr: "12:34:12:34:12:34", type: 0}
+    status: 0
+
+---
+- opcode: UNPAIR_DEVICE
+  index: 0x0000
+  params:
+    addr: {bdaddr: "12:34:12:34:12:34", type: 0}
+    disconnect: 1
+

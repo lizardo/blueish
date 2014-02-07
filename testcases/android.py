@@ -12,7 +12,7 @@ import io
 
 prefix = "/opt/bluez"
 srcdir = os.path.expanduser("~/trees/bluez.git")
-kernel_emulator = False
+kernel_emulator = True
 log_file = open("/tmp/android.log", "w")
 haltest_log = open("/tmp/haltest.log", "w")
 children = []

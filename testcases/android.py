@@ -9,6 +9,7 @@ import shutil
 import signal
 import ctypes
 import io
+import sys
 
 prefix = "/opt/bluez"
 srcdir = os.path.expanduser("~/trees/bluez.git")
@@ -58,10 +59,13 @@ def run_haltest():
     commands = [
         (">", "bluetooth init"),
         ("if_bluetooth->init: BT_STATUS_SUCCESS", "bluetooth enable"),
-        ("adapter_state_changed_cb: state=BT_STATE_ON", "bluetooth start_discovery"),
+        ("adapter_state_changed_cb: state=BT_STATE_ON", "bluetooth get_adapter_properties"),
+        ("if_bluetooth->get_adapter_properties: BT_STATUS_SUCCESS", "bluetooth start_discovery"),
         ("device_found_cb: num_properties=2", "bluetooth create_bond 12:34:12:34:12:34"),
         ("acl_state_changed_cb: status=BT_STATUS_SUCCESS remote_bd_addr=12:34:12:34:12:34 state=BT_ACL_STATE_CONNECTED",
-            "bluetooth remove_bond 12:34:12:34:12:34"),
+            "bluetooth get_remote_device_properties 12:34:12:34:12:34"),
+        ("if_bluetooth->get_remote_device_properties: BT_STATUS_SUCCESS", "bluetooth get_remote_services 12:34:12:34:12:34"),
+        ("if_bluetooth->get_remote_services: BT_STATUS_SUCCESS", "bluetooth remove_bond 12:34:12:34:12:34"),
         ("if_bluetooth->remove_bond: BT_STATUS_SUCCESS", "bluetooth disable"),
         ("if_bluetooth->disable: BT_STATUS_SUCCESS", "bluetooth cleanup"),
         ("if_bluetooth->cleanup: void", "exit"),
@@ -80,7 +84,7 @@ def run_haltest():
         assert cb_condition == GLib.IO_IN
         buf = os.read(fd, io.DEFAULT_BUFFER_SIZE)
 
-        #print("XXX: %s" % repr(buf))
+        sys.stdout.write(buf)
 
         backlog += map(str.strip, buf.strip().split("\n"))
 
@@ -89,7 +93,7 @@ def run_haltest():
             commands.pop(0)
 
         if ">" in backlog and next_command:
-            print("INFO: Executing \"%s\"" % next_command)
+            print("\nINFO: Executing \"%s\"" % next_command)
             app.stdin.write(next_command + "\n")
             next_command = None
             backlog = []
@@ -97,7 +101,7 @@ def run_haltest():
         return True
 
     io_add_watch(app.stdout.fileno(), GLib.IO_IN, haltest_output)
-    print("haltest started with PID %d" % app.pid)
+    print("INFO: haltest started with PID %d" % app.pid)
     children.append(app.pid)
 
 def android_command(fd, cb_condition):
@@ -108,7 +112,7 @@ def android_command(fd, cb_condition):
     if buf.startswith("bluetooth.start=daemon"):
         app = run_application([srcdir + "/android/bluetoothd"], log_file,
                 kernel_emulator)
-        print("bluetoothd started with PID %d" % app.pid)
+        print("INFO: bluetoothd started with PID %d" % app.pid)
         children.append(app.pid)
     else:
         assert NotImplementedError, "Command not supported: %s" % buf

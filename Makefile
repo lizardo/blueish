@@ -9,4 +9,4 @@ kernel-emulator-android:
 	./blueish.py data/{gatt_*,mgmt_{common,android}}.yaml
 
 vhci:
-	./blueish.py data/{device_le,device2,init,gatt_*}.yaml
+	./blueish.py data/{device_le,device2,init,gatt_*,sdp,hid}.yaml

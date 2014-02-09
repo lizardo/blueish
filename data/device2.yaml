@@ -151,24 +151,24 @@
       link_type: 1
       status: 0
   packet_indicator: EVENT
-#
-#---
-#- packet:
-#    opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
-#    params: {handle: 1, reason: 19}
-#  packet_indicator: COMMAND
-#- packet:
-#    evt: CMD_STATUS
-#    params:
-#      ncmd: 1
-#      opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
-#      status: 0
-#  packet_indicator: EVENT
-#- packet:
-#    evt: DISCONN_COMPLETE
-#    params: {handle: 1, reason: 22, status: 0}
-#  packet_indicator: EVENT
-#
+
+---
+- packet:
+    opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
+    params: {handle: 1, reason: 19}
+  packet_indicator: COMMAND
+- packet:
+    evt: CMD_STATUS
+    params:
+      ncmd: 1
+      opcode: {ocf: DISCONNECT, ogf: LINK_CTL}
+      status: 0
+  packet_indicator: EVENT
+- packet:
+    evt: DISCONN_COMPLETE
+    params: {handle: 1, reason: 22, status: 0}
+  packet_indicator: EVENT
+
 ---
 - packet:
     opcode: {ocf: READ_REMOTE_FEATURES, ogf: LINK_CTL}
@@ -257,7 +257,7 @@
       opcode: {ocf: LINK_KEY_REQUEST_NEG_REPLY, ogf: LINK_CTL}
       rparams: {status: 0, bdaddr: "12:34:12:34:12:34"}
   packet_indicator: EVENT
-#
+
 #---
 #- packet_indicator: ACLDATA
 #  packet:

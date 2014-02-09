@@ -1,5 +1,140 @@
 # Basic set of HID packets required for creating HID Interrupt/Control
 # connections.
+# Packets copied verbatim from BlueZ's android/android-tester.c
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START_NO_FLUSH, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_REQ
+        tid: 1
+        params:
+          max_count: 65535
+          attr_list:
+            data:
+              - {data: 65535, type_size: UINT32}
+            type_size: SEQ8
+          pattern:
+            data:
+              - {data: HID, type_size: UUID16}
+            type_size: SEQ8
+          cont: ""
+- packet_indicator: ACLDATA
+  packet:
+    header: {flags: START, handle: 1}
+    data:
+      cid: 64
+      data: !sdp
+        pdu_id: SVC_SEARCH_ATTR_RSP
+        tid: 1
+        params:
+          attr_lists:
+            data:
+            - data:
+              - {data: 0, type_size: UINT16}
+              - {data: 65536, type_size: UINT32}
+              - {data: 1, type_size: UINT16}
+              - data:
+                - {data: HID, type_size: UUID16}
+                type_size: SEQ8
+              - {data: 4, type_size: UINT16}
+              - data:
+                - data:
+                  - {data: L2CAP, type_size: UUID16}
+                  - {data: 17, type_size: UINT16}
+                  type_size: SEQ8
+                - data:
+                  - {data: HIDP, type_size: UUID16}
+                  type_size: SEQ8
+                type_size: SEQ8
+              - {data: 5, type_size: UINT16}
+              - data:
+                - {data: PUBLIC_BROWSE_GROUP, type_size: UUID16}
+                type_size: SEQ8
+              - {data: 6, type_size: UINT16}
+              - data:
+                - {data: 25966, type_size: UINT16}
+                - {data: 106, type_size: UINT16}
+                - {data: 256, type_size: UINT16}
+                type_size: SEQ8
+              - {data: 9, type_size: UINT16}
+              - data:
+                - data:
+                  - {data: HID, type_size: UUID16}
+                  - {data: 256, type_size: UINT16}
+                  type_size: SEQ8
+                type_size: SEQ8
+              - {data: 13, type_size: UINT16}
+              - data:
+                - data:
+                  - data:
+                    - {data: L2CAP, type_size: UUID16}
+                    - {data: 19, type_size: UINT16}
+                    type_size: SEQ8
+                  - data:
+                    - {data: HIDP, type_size: UUID16}
+                    type_size: SEQ8
+                  type_size: SEQ8
+                type_size: SEQ8
+              - {data: 256, type_size: UINT16}
+              - {data: Logitech Bluetooth Mouse M555b, type_size: STR8}
+              - {data: 257, type_size: UINT16}
+              - {data: Bluetooth Mouse, type_size: STR8}
+              - {data: 258, type_size: UINT16}
+              - {data: Logitech, type_size: STR8}
+              - {data: 512, type_size: UINT16}
+              - {data: 256, type_size: UINT16}
+              - {data: 513, type_size: UINT16}
+              - {data: 273, type_size: UINT16}
+              - {data: 514, type_size: UINT16}
+              - {data: 128, type_size: UINT8}
+              - {data: 515, type_size: UINT16}
+              - {data: 33, type_size: UINT8}
+              - {data: 516, type_size: UINT16}
+              - {data: true, type_size: BOOL}
+              - {data: 517, type_size: UINT16}
+              - {data: true, type_size: BOOL}
+              - {data: 518, type_size: UINT16}
+              - data:
+                - data:
+                  - {data: 34, type_size: UINT8}
+                  - data: !!binary |
+                      BQEJAqEBhQIJAaEABQkZASkIFQAlAXUBlQiBAgUBCTAJMRYB+Cb/B3UMlQKBBgk4FYElf3UIlQGB
+                      BgUMCjgCgQYFCRkJKRAVACUBlQh1AYECwMAGAP8JAaEBhRB1CJUGFQAm/wAJAYEACQGRAMA=
+                    type_size: STR8
+                  type_size: SEQ8
+                type_size: SEQ8
+              - {data: 519, type_size: UINT16}
+              - data:
+                - data:
+                  - {data: 1033, type_size: UINT16}
+                  - {data: 256, type_size: UINT16}
+                  type_size: SEQ8
+                type_size: SEQ8
+              - {data: 520, type_size: UINT16}
+              - {data: false, type_size: BOOL}
+              - {data: 521, type_size: UINT16}
+              - {data: true, type_size: BOOL}
+              - {data: 522, type_size: UINT16}
+              - {data: true, type_size: BOOL}
+              - {data: 523, type_size: UINT16}
+              - {data: 256, type_size: UINT16}
+              - {data: 524, type_size: UINT16}
+              - {data: 3200, type_size: UINT16}
+              - {data: 525, type_size: UINT16}
+              - {data: false, type_size: BOOL}
+              - {data: 526, type_size: UINT16}
+              - {data: true, type_size: BOOL}
+              type_size: SEQ16
+            type_size: SEQ16
+          cont: ''
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
 - packet:
     data:
       cid: SIGNALING
@@ -144,7 +279,7 @@
       data:
         code: DISCONN_REQ
         data: {dcid: 64, scid: 64}
-        ident: 9
+        ident: 11
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -153,46 +288,46 @@
       data:
         code: DISCONN_RSP
         data: {dcid: 64, scid: 64}
+        ident: 11
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: DISCONN_REQ
+        data: {dcid: 65, scid: 65}
+        ident: 10
+    header: {flags: START_NO_FLUSH, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: DISCONN_RSP
+        data: {dcid: 65, scid: 65}
+        ident: 10
+    header: {flags: START, handle: 1}
+  packet_indicator: ACLDATA
+- packet:
+    evt: NUM_COMP_PKTS
+    params: {count: 1, handle: 1, num_handles: 1}
+  packet_indicator: EVENT
+
+---
+- packet:
+    data:
+      cid: SIGNALING
+      data:
+        code: DISCONN_REQ
+        data: {dcid: 66, scid: 66}
         ident: 9
-    header: {flags: START, handle: 1}
-  packet_indicator: ACLDATA
-- packet:
-    evt: NUM_COMP_PKTS
-    params: {count: 1, handle: 1, num_handles: 1}
-  packet_indicator: EVENT
-
----
-- packet:
-    data:
-      cid: SIGNALING
-      data:
-        code: DISCONN_REQ
-        data: {dcid: 65, scid: 65}
-        ident: 10
-    header: {flags: START_NO_FLUSH, handle: 1}
-  packet_indicator: ACLDATA
-- packet:
-    data:
-      cid: SIGNALING
-      data:
-        code: DISCONN_RSP
-        data: {dcid: 65, scid: 65}
-        ident: 10
-    header: {flags: START, handle: 1}
-  packet_indicator: ACLDATA
-- packet:
-    evt: NUM_COMP_PKTS
-    params: {count: 1, handle: 1, num_handles: 1}
-  packet_indicator: EVENT
-
----
-- packet:
-    data:
-      cid: SIGNALING
-      data:
-        code: DISCONN_REQ
-        data: {dcid: 66, scid: 66}
-        ident: 11
     header: {flags: START_NO_FLUSH, handle: 1}
   packet_indicator: ACLDATA
 - packet:
@@ -201,7 +336,7 @@
       data:
         code: DISCONN_RSP
         data: {dcid: 66, scid: 66}
-        ident: 11
+        ident: 9
     header: {flags: START, handle: 1}
   packet_indicator: ACLDATA
 - packet:

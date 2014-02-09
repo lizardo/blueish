@@ -148,7 +148,7 @@
       cid: 64
       data: !sdp
         pdu_id: SVC_SEARCH_ATTR_REQ
-        tid: 1
+        tid: 0
         params:
           max_count: 65535
           attr_list:
@@ -165,13 +165,13 @@
       cid: 64
       data: !sdp
         pdu_id: SVC_SEARCH_ATTR_RSP
-        tid: 1
+        tid: 0
         params:
           attr_lists:
             data:
               - data:
                   - {data: 0, type_size: UINT16}
-                  - {data: 65537, type_size: UINT32}
+                  - {data: 0x10001, type_size: UINT32}
                   - {data: 1, type_size: UINT16}
                   - {data: [{data: PNP_INFO, type_size: UUID16}], type_size: SEQ8}
                 type_size: SEQ16
@@ -183,3 +183,51 @@
     evt: NUM_COMP_PKTS
     params: {count: 1, handle: 1, num_handles: 1}
   packet_indicator: EVENT
+#- packet_indicator: ACLDATA
+#  packet:
+#    header: {flags: START, handle: 1}
+#    data:
+#      cid: 64
+#      data: !sdp
+#        pdu_id: SVC_SEARCH_ATTR_RSP
+#        tid: 0
+#        params:
+#          attr_lists:
+#            data:
+#            - data:
+#              - {data: 0, type_size: UINT16}
+#              - {data: 65536, type_size: UINT32}
+#              - {data: 1, type_size: UINT16}
+#              - data:
+#                - {data: PNP_INFO, type_size: UUID16}
+#                type_size: SEQ8
+#              - {data: 5, type_size: UINT16}
+#              - data:
+#                - {data: PUBLIC_BROWSE_GROUP, type_size: UUID16}
+#                type_size: SEQ8
+#              - {data: 9, type_size: UINT16}
+#              - data:
+#                - data:
+#                  - {data: PNP_INFO, type_size: UUID16}
+#                  - {data: 259, type_size: UINT16}
+#                  type_size: SEQ8
+#                type_size: SEQ8
+#              - {data: 512, type_size: UINT16}
+#              - {data: 259, type_size: UINT16}
+#              - {data: 513, type_size: UINT16}
+#              - {data: 7531, type_size: UINT16}
+#              - {data: 514, type_size: UINT16}
+#              - {data: 582, type_size: UINT16}
+#              - {data: 515, type_size: UINT16}
+#              - {data: 1294, type_size: UINT16}
+#              - {data: 516, type_size: UINT16}
+#              - {data: true, type_size: BOOL}
+#              - {data: 517, type_size: UINT16}
+#              - {data: 2, type_size: UINT16}
+#              type_size: SEQ8
+#            type_size: SEQ8
+#          cont: ""
+#- packet:
+#    evt: NUM_COMP_PKTS
+#    params: {count: 1, handle: 1, num_handles: 1}
+#  packet_indicator: EVENT

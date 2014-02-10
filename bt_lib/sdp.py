@@ -40,6 +40,7 @@ def SDP_DE(name):
             UINT16 = 0x09,
             UINT32 = 0x0a,
             UUID16 = 0x19,
+            UUID128 = 0x1c,
             STR8 = 0x25,
             BOOL = 0x28,
             SEQ8 = 0x35,

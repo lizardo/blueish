@@ -91,19 +91,30 @@ def BdAddr(name):
     return BdAddrAdapter(Bytes(name, 6))
 
 class BtUuidAdapter(Adapter):
+    def __init__(self, subcon, big_endian=False):
+        super(BtUuidAdapter, self).__init__(subcon)
+        self.big_endian = big_endian
+
     def _encode(self, obj, context):
         if isinstance(obj, int):
+            assert not self.big_endian
             return [ord(c) for c in ULInt16("uuid16").build(obj)]
         else:
             import uuid
-            return [ord(c) for c in reversed(uuid.UUID(obj).bytes)]
+            data = uuid.UUID(obj).bytes
+            if not self.big_endian:
+                data = reversed(data)
+            return [ord(c) for c in data]
 
     def _decode(self, obj, context):
         if len(obj) == 2:
+            assert not self.big_endian
             return "0x%04x" % ULInt16("uuid16").parse("".join(chr(c) for c in obj))
         else:
             import uuid
-            return str(uuid.UUID(bytes="".join(chr(c) for c in reversed(obj))))
+            if not self.big_endian:
+                obj = reversed(obj)
+            return str(uuid.UUID(bytes="".join(chr(c) for c in obj)))
 
 def BT_UUID(name):
     return BtUuidAdapter(GreedyRange(ULInt8(name)))

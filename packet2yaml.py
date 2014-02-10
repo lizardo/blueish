@@ -19,7 +19,7 @@ import sys
 import yaml
 from construct import Container, ListContainer
 
-from bt_lib import mgmt
+from bt_lib import mgmt, sdp
 from bt_lib.hci import transport
 
 def usage():
